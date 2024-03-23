@@ -1,10 +1,19 @@
-import { StyleSheet, Text, View, Button } from 'react-native';
-import { Asset, useAssets } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
+import * as SplashScreen from 'expo-splash-screen';
+import { StyleSheet, Text, View } from 'react-native';
+import * as LocalAuth from "expo-local-authentication";
 import { InitParams } from './src/model/initParamsModel';
 import { MYFINANCES_FILE_DATABASE_NAME, PATH_SQLITE_FILES, initDefaultDatabase } from './src/services/db/sqLiteService';
+import { useEffect, useState } from 'react';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  
+  LocalAuth.authenticateAsync().then((res)=>{
+    if (res.success)
+      SplashScreen.hideAsync()
+  })
 
   onInit({
     initDatabase: true,
