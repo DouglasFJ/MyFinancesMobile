@@ -2,10 +2,14 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import { Asset, useAssets } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import { InitParams } from './src/model/initParamsModel';
+import { MYFINANCES_FILE_DATABASE_NAME, PATH_SQLITE_FILES, initDefaultDatabase } from './src/services/db/sqLiteService';
 
 export default function App() {
 
-  onInit({})
+  onInit({
+    initDatabase: true,
+    restartDatabase: true
+  })
 
   return (
     <View style={styles.container}>
@@ -24,10 +28,22 @@ const styles = StyleSheet.create({
 });
 
 function onInit(params: InitParams) {
-  database(params)
+  if(params.initDatabase) database(params)
 
 }
 
-function database(params: InitParams) {
-  // verificar se o banco de dados já existe e criar caso não exista
+async function database(params: InitParams) {
+  // verificar se o arquivo do banco já existe e criar caso não exista
+  let dbUri = PATH_SQLITE_FILES+"/"+MYFINANCES_FILE_DATABASE_NAME+".db"
+  
+  if (params.restartDatabase)// se restart for true deletar o bd
+    await FileSystem.deleteAsync(dbUri)
+
+  let arquivoBDExiste = (await FileSystem.getInfoAsync(dbUri)).exists
+
+  if(arquivoBDExiste) return;
+
+  //Se arquivo não existe: 
+  await initDefaultDatabase()
+
 }

@@ -2,9 +2,9 @@ import * as SQLite from "expo-sqlite";
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 
-const PATH_SQLITE_FILES = `${FileSystem.documentDirectory}'SQLite'`
+export const PATH_SQLITE_FILES = `${FileSystem.documentDirectory}'SQLite'`
 export const MYFINANCES_FILE_DATABASE_NAME = "MyFinances"
-export const MYFINANCES_DATABASE_NAME = "MY_FINANCES_DATABASE"
+// export const MYFINANCES_DATABASE_NAME = "MY_FINANCES_DATABASE" //TODO: excluir dps caso não tenha uso
 const LOCAL_DDL_FILE = "./assets/db/ddl-myfinances.sql"
 const LOCAL_DML_FILE = "./assets/db/dml-myfinances.sql"
 
@@ -35,6 +35,7 @@ export async function select() {
 
 /**
  * Essa função inicializa o banco de dados e todo o schema de forma padrão do sistema
+ * 
  */
 export async function initDefaultDatabase() {
     let sqlDDL: string = "";
