@@ -5,8 +5,8 @@ import { Asset } from "expo-asset";
 export const PATH_SQLITE_FILES = `${FileSystem.documentDirectory}'SQLite'`
 export const MYFINANCES_FILE_DATABASE_NAME = "MyFinances"
 // export const MYFINANCES_DATABASE_NAME = "MY_FINANCES_DATABASE" //TODO: excluir dps caso não tenha uso
-const LOCAL_DDL_FILE = "./assets/db/ddl-myfinances.sql"
-const LOCAL_DML_FILE = "./assets/db/dml-myfinances.sql"
+const LOCAL_DML_FILE = "../../../assets/db/dml-myfinances.sql"
+const LOCAL_DDL_FILE = "../../../assets/db/ddl-myfinances.sql"
 
 /**
  * Método para abrir/criar um banco SQLite
@@ -60,11 +60,12 @@ export async function initDefaultDatabase() {
     let db = await openDatabase(MYFINANCES_FILE_DATABASE_NAME)
     db.transaction((t) => {
 
-        t.executeSql(sqlDDL, [],
+        if(sqlDDL != "") t.executeSql(sqlDDL, [],
             (tr, r) => {
-                console.debug("DDL executado com sucesso: "+r)
+                console.debug("DDL executado com sucesso: ")
+                console.debug(r)
 
-                tr.executeSql(sqlDML, [],
+                if(sqlDML != "") tr.executeSql(sqlDML, [],
                     (trx, rs)=>{
                         console.debug("DML executado com sucesso: " + rs)
                     }

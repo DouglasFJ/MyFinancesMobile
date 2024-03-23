@@ -22,13 +22,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "br.com.myfinancesmobile.douglasfj",
-      
+      "package": "br.com.myfinancesmobile.douglasfj"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "jsEngine": "hermes"
+    "jsEngine": "hermes",
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

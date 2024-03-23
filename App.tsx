@@ -45,10 +45,12 @@ async function database(params: InitParams) {
   // verificar se o arquivo do banco já existe e criar caso não exista
   let dbUri = PATH_SQLITE_FILES+"/"+MYFINANCES_FILE_DATABASE_NAME+".db"
   
-  if (params.restartDatabase)// se restart for true deletar o bd
+  let arquivoBDExiste = (await FileSystem.getInfoAsync(dbUri)).exists
+  
+  if (params.restartDatabase && arquivoBDExiste)// se restart for true deletar o bd
     await FileSystem.deleteAsync(dbUri)
 
-  let arquivoBDExiste = (await FileSystem.getInfoAsync(dbUri)).exists
+  arquivoBDExiste = (await FileSystem.getInfoAsync(dbUri)).exists
 
   if(arquivoBDExiste) return;
 
