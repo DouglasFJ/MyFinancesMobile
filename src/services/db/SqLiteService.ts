@@ -64,12 +64,6 @@ export async function initDefaultDatabase() {
             (tr, r) => {
                 console.debug("DDL executado com sucesso: ")
                 console.debug(r)
-
-                if(sqlDML != "") tr.executeSql(sqlDML, [],
-                    (trx, rs)=>{
-                        console.debug("DML executado com sucesso: " + rs)
-                    }
-                ) 
             },
             (trx, error) => {
                 console.error("Erro ao executar o DDL: "+error)
@@ -79,4 +73,14 @@ export async function initDefaultDatabase() {
     }, (error)=>{
         console.error("Erro ao iniciar uma transação SQL: "+error)
     })
+
+    db.transaction((t)=>{
+        if(sqlDML != "") t.executeSql(sqlDML, [],
+            (tr, rs)=>{
+                console.debug("DML executado com sucesso: " + rs)
+            }
+        ) 
+    })
+
+    
 }
