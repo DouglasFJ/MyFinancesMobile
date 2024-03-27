@@ -2,8 +2,8 @@ import * as FileSystem from 'expo-file-system';
 import * as LocalAuth from "expo-local-authentication";
 import * as SplashScreen from 'expo-splash-screen';
 import { StyleSheet, Text, View } from 'react-native';
-import { InitParams } from '../src/model/initParamsModel';
-import { MYFINANCES_FILE_DATABASE_NAME, PATH_SQLITE_FILES, initDefaultDatabase } from '../src/services/db/sqLiteService';
+import { InitParams } from '../src/model/general/initParamsModel';
+import { MYFINANCES_FILE_DATABASE_NAME, PATH_SQLITE_FILES, initDefaultDatabase } from '../src/services/sqLiteService';
 import { Slot } from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
@@ -21,7 +21,9 @@ export default function App() {
   })
 
   return (
-    <Slot/>
+    <>
+      <Slot/>
+    </>
   );
 }
 

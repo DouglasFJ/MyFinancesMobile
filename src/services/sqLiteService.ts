@@ -4,9 +4,8 @@ import { Asset } from "expo-asset";
 
 export const PATH_SQLITE_FILES = `${FileSystem.documentDirectory}'SQLite'`
 export const MYFINANCES_FILE_DATABASE_NAME = "MyFinances"
-// export const MYFINANCES_DATABASE_NAME = "MY_FINANCES_DATABASE" //TODO: excluir dps caso não tenha uso
-const LOCAL_DML_FILE = "../../../assets/db/dml-myfinances.sql"
-const LOCAL_DDL_FILE = "../../../assets/db/ddl-myfinances.sql"
+const LOCAL_DML_FILE = "../../assets/db/dml-myfinances.sql"
+const LOCAL_DDL_FILE = "../../assets/db/ddl-myfinances.sql"
 
 /**
  * Método para abrir/criar um banco SQLite
@@ -24,7 +23,7 @@ export async function openDatabase(name: string) {
     if (!(await FileSystem.getInfoAsync(PATH_SQLITE_FILES)).exists) {
         await FileSystem.makeDirectoryAsync(PATH_SQLITE_FILES);
     }
-    console.debug(`Opening database in path: ${FileSystem.documentDirectory}SQLite/${name}`)
+    
     return SQLite.openDatabase(name)
 }
 
@@ -62,8 +61,8 @@ export async function initDefaultDatabase() {
 
         if(sqlDDL != "") t.executeSql(sqlDDL, [],
             (tr, r) => {
-                console.debug("DDL executado com sucesso: ")
-                console.debug(r)
+                // console.debug("DDL executado com sucesso: ")
+                // console.debug(r)
             },
             (trx, error) => {
                 console.error("Erro ao executar o DDL: "+error)
@@ -77,7 +76,7 @@ export async function initDefaultDatabase() {
     db.transaction((t)=>{
         if(sqlDML != "") t.executeSql(sqlDML, [],
             (tr, rs)=>{
-                console.debug("DML executado com sucesso: " + rs)
+                // console.debug("DML executado com sucesso: " + rs)
             }
         ) 
     })

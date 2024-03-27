@@ -1,11 +1,11 @@
 export interface IRepository<T, ID>{
 
-    save(model: T): T;
-    update(model: T): T;
-    delete(id: ID): void;
-    findById(id: ID): T;
-    findAll(params: {sort: string, limit: number}): T[];
-    existsById(id: ID): boolean;
-    count(): number;
+    save(model: T): Promise<T>;
+    update(model: T): Promise<T>;
+    delete(id: ID): Promise<void>;
+    findById(id: ID): Promise<T>;
+    findAll(params: {sort: string, limit: number}): Promise<T[]>;
+    existsById(id: ID): Promise<boolean>;
+    count(): Promise<number>;
 
 }

@@ -1,30 +1,21 @@
+import CacheEntity from "../cache/CacheEntity"
 
-export interface columnData {
-    dbName: string,
+export interface ColumnData {
+    name: string,
     isId: boolean
 }
 
 export function Column(name: string, isId:boolean = false) {
     
     return (target: any, key: any) => {
-        console.log(target)
-        console.log(key)
 
-        Object.defineProperty(target, `columnNameOf_${key}`, {
-            value: {dbName: name, isId: isId},
-            writable: false,
-            enumerable: true
-        })
+        CacheEntity.mapColumnsName[key] = {name: name, isId: isId};
     }
 }
 
-export function table(name: string){
+export function Table(name: string){
 
     return (target: any)=>{
-        Object.defineProperty(target, "tableName", {
-            value: name,
-            writable: false,
-            enumerable: true
-        })
+        CacheEntity.mapTablesName[target.name] = name;
     }
 }
