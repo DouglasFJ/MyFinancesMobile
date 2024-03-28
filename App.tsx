@@ -1,60 +1,121 @@
-import * as FileSystem from 'expo-file-system';
-import * as SplashScreen from 'expo-splash-screen';
-import { StyleSheet, Text, View } from 'react-native';
-import * as LocalAuth from "expo-local-authentication";
-import { InitParams } from './src/model/general/initParamsModel';
-import { MYFINANCES_FILE_DATABASE_NAME, PATH_SQLITE_FILES, initDefaultDatabase } from './src/services/sqLiteService';
-import { useEffect, useState } from 'react';
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ */
 
-SplashScreen.preventAutoHideAsync();
+import React from 'react';
+import type {PropsWithChildren} from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View, Button
+} from 'react-native';
 
-export default function App() {
-  
-  LocalAuth.authenticateAsync().then((res)=>{
-    if (res.success)
-      SplashScreen.hideAsync()
-  })
+import {
+  Colors,
+  DebugInstructions,
+  Header,
+  LearnMoreLinks,
+  ReloadInstructions,
+} from 'react-native/Libraries/NewAppScreen';
 
-  onInit({
-    initDatabase: true,
-    restartDatabase: true
-  })
+type SectionProps = PropsWithChildren<{
+  title: string;
+}>;
 
+function Section({children, title}: SectionProps): React.JSX.Element {
+  const isDarkMode = useColorScheme() === 'dark';
   return (
-    <View style={styles.container}>
-      <Text>Meu primeiro app mobile com REACT NATIVE</Text>
+    <View style={styles.sectionContainer}>
+      <Text
+        style={[
+          styles.sectionTitle,
+          {
+            color: isDarkMode ? Colors.white : Colors.black,
+          },
+        ]}>
+        {title}
+      </Text>
+      <Text
+        style={[
+          styles.sectionDescription,
+          {
+            color: isDarkMode ? Colors.light : Colors.dark,
+          },
+        ]}>
+        {children}
+      </Text>
     </View>
   );
 }
 
+function App(): React.JSX.Element {
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
+
+  return (
+    <SafeAreaView style={backgroundStyle}>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundStyle.backgroundColor}
+      />
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={backgroundStyle}>
+        <Header />
+        <View
+          style={{
+            backgroundColor: isDarkMode ? Colors.black : Colors.white,
+          }}>
+          <Section title="Step One">
+            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
+            screen and then come back to see your edits.
+          </Section>
+          <Section title="See Your Changes">
+            <ReloadInstructions />
+          </Section>
+          <Section title="Debug">
+            <DebugInstructions />
+          </Section>
+          <Section title="Learn More">
+            Read the docs to discover what to do next:
+          </Section>
+          <LearnMoreLinks />
+          <Button title='testDebug' onPress={()=>{
+            console.log("AAAAAAAAAAAAAAAAA deu certo")
+          }}/>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 24,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  sectionDescription: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: '400',
+  },
+  highlight: {
+    fontWeight: '700',
   },
 });
 
-function onInit(params: InitParams) {
-  if(params.initDatabase) database(params)
-
-}
-
-async function database(params: InitParams) {
-  // verificar se o arquivo do banco já existe e criar caso não exista
-  let dbUri = PATH_SQLITE_FILES+"/"+MYFINANCES_FILE_DATABASE_NAME+".db"
-  
-  let arquivoBDExiste = (await FileSystem.getInfoAsync(dbUri)).exists
-  
-  if (params.restartDatabase && arquivoBDExiste)// se restart for true deletar o bd
-    await FileSystem.deleteAsync(dbUri)
-
-  arquivoBDExiste = (await FileSystem.getInfoAsync(dbUri)).exists
-
-  if(arquivoBDExiste) return;
-
-  //Se arquivo não existe: 
-  await initDefaultDatabase()
-
-}
+export default App;
