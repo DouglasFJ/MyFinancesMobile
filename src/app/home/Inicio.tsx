@@ -1,5 +1,5 @@
 import { Button, Text, View } from "react-native";
-import Colors from "../../src/ui/Colors";
+import Colors from "../../ui/Colors";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
 

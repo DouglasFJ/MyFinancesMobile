@@ -26,7 +26,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import Home from './app/Home';
+import Home from './src/app/Home';
 
 const Stack = createNativeStackNavigator();
 

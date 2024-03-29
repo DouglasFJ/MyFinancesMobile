@@ -1,5 +1,5 @@
 import { Text } from "react-native";
-import Colors from "../../src/ui/Colors";
+import Colors from "../../ui/Colors";
 
 export default function CadastroScreen() {
     

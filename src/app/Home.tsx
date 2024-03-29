@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, Button, ScrollView, Pressable, ToastAndroid } from "react-native";
-import HomeIcon from "../src/ui/icons/HomeIcon";
-import colors from "../src/ui/Colors";
-import MesIcon from "../src/ui/icons/MesIcon";
-import AddIcon from "../src/ui/icons/AddIcon";
-import CartaoIcon from "../src/ui/icons/CartaoIcon";
-import CaixaIcon from "../src/ui/icons/CaixaIcon";
+import HomeIcon from "../ui/icons/HomeIcon";
+import colors from "../ui/Colors";
+import MesIcon from "../ui/icons/MesIcon";
+import AddIcon from "../ui/icons/AddIcon";
+import CartaoIcon from "../ui/icons/CartaoIcon";
+import CaixaIcon from "../ui/icons/CaixaIcon";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import InicioScreen from "./home/Inicio";
 import React, { useEffect, useState } from "react";
