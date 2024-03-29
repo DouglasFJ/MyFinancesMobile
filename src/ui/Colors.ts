@@ -1,5 +1,5 @@
 
-const colors = {
+export default {
     cinza: {
         "950": "#0A0A0A",
         "900": "#171717",
@@ -55,5 +55,3 @@ const colors = {
     }
     
 }
-
-export default colors;

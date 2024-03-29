@@ -1,11 +1,12 @@
-import { Svg, SvgXml } from "react-native-svg";
+import { SvgXml } from "react-native-svg";
 
 export default function HomeIcon(
     {height, width, color} :
     {height: string, width: string, color: string}
 ) {
+    //Não mexer no tamanho svg o react-svg já faz isso internamente
     const xml = `
-    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_31_24)">
     <path d="M36.8284 8.48529C35.2663 6.92319 35.2663 4.39053 36.8284 2.82843C38.3905 1.26634 40.9232 1.26634 42.4853 2.82843L79.9884 40.3315L74.3315 45.9884L36.8284 8.48529Z" fill="${color}"/>
     <path d="M37.5031 2.82843C39.0652 1.26633 41.5978 1.26633 43.1599 2.82843C44.722 4.39052 44.722 6.92318 43.1599 8.48528L5.65684 45.9884L-1.41306e-05 40.3315L37.5031 2.82843Z" fill="${color}"/>
@@ -15,11 +16,11 @@ export default function HomeIcon(
     </g>
     <defs>
     <clipPath id="clip0_31_24">
-    <rect width="${width}" height="${height}" fill="white"/>
+    <rect width="80" height="80" fill="white"/>
     </clipPath>
     </defs>
     </svg>    
     `
-    return(<SvgXml xml={xml} width="100%" height="100%"/>)
+    return(<SvgXml xml={xml} width={width} height={height}/>)
     
 }
