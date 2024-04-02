@@ -1,9 +1,9 @@
 import { mask } from "react-native-mask-text";
-import { nomeMesArray } from "../constantes/MesesEnums";
+import { nomeMesArray } from "../constantes/MesesConstante";
 
-export function maskBRL(number: number) {
+export function maskBRL(number: number, prefix?: boolean) {
     return mask(number*100,undefined,"currency",{
-        prefix: "R$ ", 
+        prefix: prefix || prefix === undefined?"R$ ":"", 
         decimalSeparator: ",", 
         precision: 2,
     })
