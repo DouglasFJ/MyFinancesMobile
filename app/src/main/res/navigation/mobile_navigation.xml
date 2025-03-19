@@ -12,14 +12,20 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_month"
         android:name="com.douglasfj.myfinances.ui.dashboard.DashboardFragment"
         android:label="@string/title_month"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_card"
         android:name="com.douglasfj.myfinances.ui.notifications.NotificationsFragment"
         android:label="@string/title_cards"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_emergencial_box"
+        android:name="com.douglasfj.myfinances.ui.notifications.NotificationsFragment"
+        android:label="@string/title_emergencial_box"
         tools:layout="@layout/fragment_notifications" />
 </navigation>
