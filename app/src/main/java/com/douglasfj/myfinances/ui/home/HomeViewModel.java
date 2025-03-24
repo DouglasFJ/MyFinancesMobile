@@ -6,14 +6,13 @@ import androidx.lifecycle.ViewModel;
 
 public class HomeViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    private final MutableLiveData<Boolean> isValuesVisible;
 
     public HomeViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        isValuesVisible = new MutableLiveData<>();
+        isValuesVisible.setValue(true);
     }
 
-    public LiveData<String> getText() {
-        return mText;
-    }
+    public MutableLiveData<Boolean> getIsValuesVisible() { return isValuesVisible; }
+
 }

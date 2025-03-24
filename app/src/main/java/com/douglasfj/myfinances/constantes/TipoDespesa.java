@@ -5,7 +5,11 @@ import androidx.annotation.Nullable;
 import com.douglasfj.myfinances.R;
 
 public enum TipoDespesa {
-    INVESTIMENTO, ALIMENTACAO, ESSENCIAL, EXTRAS, MEDICACAO;
+    INVESTIMENTO,
+    ALIMENTACAO,
+    ESSENCIAL,
+    EXTRAS,
+    MEDICACAO;
 
     public Integer getRIDIcon() {
         switch (this) {

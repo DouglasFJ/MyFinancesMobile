@@ -21,13 +21,14 @@ import androidx.core.widget.ImageViewCompat;
 import com.douglasfj.myfinances.R;
 import com.douglasfj.myfinances.constantes.TipoDespesa;
 import com.douglasfj.myfinances.models.ItemDepesa;
+import com.douglasfj.myfinances.models.entities.ValoresEntity;
 import com.douglasfj.myfinances.utils.ColorUtil;
 import com.douglasfj.myfinances.utils.DinheiroUtil;
 
 import java.util.List;
 
-public class DespesaViewAdapter extends ArrayAdapter<ItemDepesa> {
-    public DespesaViewAdapter(@NonNull Context context, @NonNull List<ItemDepesa> objects) {
+public class DespesaViewAdapter extends ArrayAdapter<ValoresEntity> {
+    public DespesaViewAdapter(@NonNull Context context, @NonNull List<ValoresEntity> objects) {
         super(context, 0, objects);
     }
 
@@ -40,7 +41,7 @@ public class DespesaViewAdapter extends ArrayAdapter<ItemDepesa> {
             itemView = LayoutInflater.from(getContext()).inflate(R.layout.layout_despesa, parent, false);
         }
 
-        ItemDepesa itemDepesa = getItem(position);
+        ValoresEntity itemDepesa = getItem(position);
 
         if (itemDepesa != null) {
             //busca todas as views
@@ -55,12 +56,12 @@ public class DespesaViewAdapter extends ArrayAdapter<ItemDepesa> {
             // Faz as alterações
             String colorName = tipoDespesa.getColorName();
 
-            nomeDespesaView.setText(itemDepesa.getNomeDespesa());
+            nomeDespesaView.setText(itemDepesa.nomeValor);
             nomeDespesaView.setTextColor(
                     ContextCompat.getColor(getContext(),ColorUtil.getColorIDByNameAndWeight(colorName, "950"))
             );
 
-            despesaView.setText(DinheiroUtil.floatToStringReais(itemDepesa.getValorDespesa()));
+            despesaView.setText(DinheiroUtil.floatToStringReais(itemDepesa.valorReais));
             despesaView.setTextColor(
                     ContextCompat.getColor(getContext(), ColorUtil.getColorIDByNameAndWeight(colorName, "700"))
             );

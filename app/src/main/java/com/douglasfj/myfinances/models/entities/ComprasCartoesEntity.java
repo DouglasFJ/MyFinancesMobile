@@ -11,7 +11,7 @@ public class ComprasCartoesEntity {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID_COMPRA_CARTAO")
-    public int idCompraCartao;
+    public Long idCompraCartao;
 
     @ColumnInfo(name = "ID_CARTAO")
     public int idCartao;

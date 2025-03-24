@@ -1,0 +1,222 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "d7c356bcc5b5b6ae34c048b10dd06e71",
+    "entities": [
+      {
+        "tableName": "CARTOES",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_CARTAO` INTEGER PRIMARY KEY AUTOINCREMENT, `NOME_CARTAO` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "idCartao",
+            "columnName": "ID_CARTAO",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nomeCartao",
+            "columnName": "NOME_CARTAO",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID_CARTAO"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "COMPRAS_CARTOES",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_COMPRA_CARTAO` INTEGER PRIMARY KEY AUTOINCREMENT, `ID_CARTAO` INTEGER NOT NULL, `NOME_COMPRA` TEXT, `VALOR_COMPRA` REAL NOT NULL, `NUMERO_PARCELAS` INTEGER NOT NULL, `DATA_PRIMEIRA_PARCELA` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "idCompraCartao",
+            "columnName": "ID_COMPRA_CARTAO",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idCartao",
+            "columnName": "ID_CARTAO",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomeCompra",
+            "columnName": "NOME_COMPRA",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "valorCompra",
+            "columnName": "VALOR_COMPRA",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroParcelas",
+            "columnName": "NUMERO_PARCELAS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataPrimeiraParcela",
+            "columnName": "DATA_PRIMEIRA_PARCELA",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID_COMPRA_CARTAO"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "MESES",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_MES` INTEGER PRIMARY KEY AUTOINCREMENT, `MES` INTEGER NOT NULL, `ANO` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idMes",
+            "columnName": "ID_MES",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mes",
+            "columnName": "MES",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ano",
+            "columnName": "ANO",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID_MES"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "MESES_VALORES",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_MES_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `ID_MES` INTEGER, `ID_VALOR` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "idMesValor",
+            "columnName": "ID_MES_VALOR",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idMes",
+            "columnName": "ID_MES",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idValor",
+            "columnName": "ID_VALOR",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID_MES_VALOR"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "VALORES",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `NOME_VALOR` TEXT, `VALOR_REAIS` REAL NOT NULL, `DATA_INSERCAO_VALOR` INTEGER, `INDICADOR_VALOR_FIXO` INTEGER NOT NULL, `INDICADOR_VALOR_DESPESA` INTEGER NOT NULL, `INDICADOR_DESPESA_PAGA` INTEGER NOT NULL, `TIPO_VALOR` TEXT, `ID_COMPRA_CARTAO` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "idValor",
+            "columnName": "ID_VALOR",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nomeValor",
+            "columnName": "NOME_VALOR",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "valorReais",
+            "columnName": "VALOR_REAIS",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataInsercaoValor",
+            "columnName": "DATA_INSERCAO_VALOR",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "indicadorValorFixo",
+            "columnName": "INDICADOR_VALOR_FIXO",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "indicadorValorDespesa",
+            "columnName": "INDICADOR_VALOR_DESPESA",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "indicadorDespesaPaga",
+            "columnName": "INDICADOR_DESPESA_PAGA",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoValor",
+            "columnName": "TIPO_VALOR",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idCompraCartao",
+            "columnName": "ID_COMPRA_CARTAO",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID_VALOR"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd7c356bcc5b5b6ae34c048b10dd06e71')"
+    ]
+  }
+}

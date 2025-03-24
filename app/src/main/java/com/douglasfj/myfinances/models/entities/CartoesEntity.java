@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 public class CartoesEntity {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID_CARTAO")
-    public int idCartao;
+    public Long idCartao;
 
     @ColumnInfo(name = "NOME_CARTAO")
     public String nomeCartao;

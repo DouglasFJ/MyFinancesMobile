@@ -9,7 +9,7 @@ public class MesesEntity {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID_MES")
-    public int idMes;
+    public Long idMes;
 
     @ColumnInfo(name = "MES")
     public int mes;

@@ -9,11 +9,11 @@ public class MesesValoresEntity {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "ID_MES_VALOR")
-    public int idMesValor;
+    public Long idMesValor;
 
     @ColumnInfo(name = "ID_MES")
-    public int idMes;
+    public Long idMes;
 
     @ColumnInfo(name = "ID_VALOR")
-    public int idValor;
+    public Long idValor;
 }
