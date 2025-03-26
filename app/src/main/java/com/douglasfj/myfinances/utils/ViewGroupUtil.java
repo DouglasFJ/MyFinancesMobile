@@ -21,8 +21,6 @@ public class ViewGroupUtil {
                 listViews.add((T) child);
             } else if (child instanceof ViewGroup) {
                 listViews.addAll(getAllViewsOfType((ViewGroup) child, classType));
-            } else if (child. == R.id.fragment_home_lista_falta_pagar) {
-                Log.i("ACHEI ADAPTER", "ADAPTER VIEW");
             }
         }
 

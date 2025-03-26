@@ -1,5 +1,6 @@
 package com.douglasfj.myfinances.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -28,6 +29,12 @@ public interface MesesDAO {
 
     @Query("SELECT * FROM MESES WHERE ID_MES == :idMes")
     MesesEntity getByID(int idMes);
+
+    @Query("SELECT * FROM MESES WHERE MES == :mes AND ANO == :ano")
+    LiveData<MesesEntity> getByMesAnoAsync(int mes, int ano);
+
+    @Query("SELECT * FROM MESES WHERE MES == :mes AND ANO == :ano")
+    MesesEntity getByMesAno(int mes, int ano);
 
     @Transaction
     @Query("SELECT * FROM MESES WHERE ID_MES == :idMes")

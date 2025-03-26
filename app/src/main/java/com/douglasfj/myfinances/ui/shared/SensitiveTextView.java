@@ -2,11 +2,13 @@ package com.douglasfj.myfinances.ui.shared;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.lifecycle.LifecycleOwner;
+
+import com.douglasfj.myfinances.ui.GlobalState;
 
 public class SensitiveTextView extends AppCompatTextView {
     private boolean isSensitiveVisible = true;
@@ -30,9 +32,22 @@ public class SensitiveTextView extends AppCompatTextView {
     private void init() {
         //get color
         linePaint = new Paint();
-        linePaint.setColor(getCurrentTextColor());
         linePaint.setStrokeWidth(4f);
         linePaint.setAntiAlias(true);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        GlobalState.IS_VALUES_VISIBLE.observeForever(this::setSensitiveVisible);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        GlobalState.IS_VALUES_VISIBLE.removeObserver(this::setSensitiveVisible);
     }
 
     public void setSensitiveVisible(boolean isVisible) {
@@ -50,6 +65,7 @@ public class SensitiveTextView extends AppCompatTextView {
             super.onDraw(canvas);
         } else {
             // Draw a horizontal line instead of the text
+            linePaint.setColor(getCurrentTextColor());
             float centerY = getHeight() / 2f;
             canvas.drawLine(0, centerY, getWidth(), centerY, linePaint);
         }
