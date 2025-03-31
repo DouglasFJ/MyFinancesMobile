@@ -2,6 +2,7 @@ package com.douglasfj.myfinances.models.entities;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.time.Month;
@@ -12,6 +13,8 @@ import java.util.Locale;
 public class MesesEntity {
 
     public MesesEntity() {}
+
+    @Ignore
     public MesesEntity(int mes, int ano) {
         this.mes = mes;
         this.ano = ano;

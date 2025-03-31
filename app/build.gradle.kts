@@ -53,8 +53,13 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-//    ROOM DEPENDECIES:
+//    RxJava Dependencies
+    implementation(libs.rxjava.rxjava3)
+    implementation(libs.rxjava.rxandroid)
+
+//    ROOM DEPENDENCIES:
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
     testImplementation(libs.room.testing)
+    implementation(libs.room.rxjava3)
 }

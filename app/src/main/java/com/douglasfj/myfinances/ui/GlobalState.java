@@ -2,16 +2,16 @@ package com.douglasfj.myfinances.ui;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.douglasfj.myfinances.database.MyFinancesDatabase;
 import com.douglasfj.myfinances.models.entities.MesesEntity;
 
 import java.util.Calendar;
-import java.util.Date;
+
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 public class GlobalState {
 
     public static final MutableLiveData<Boolean> IS_VALUES_VISIBLE = new MutableLiveData<>(true);
-    public static final MutableLiveData<MesesEntity> MES_SELECIONADO = new MutableLiveData<>(getMesAtual());
+    public static final BehaviorSubject<MesesEntity> MES_SELECIONADO = BehaviorSubject.createDefault(getMesAtual());
 
     private static MesesEntity getMesAtual(){
         Calendar cal = Calendar.getInstance();

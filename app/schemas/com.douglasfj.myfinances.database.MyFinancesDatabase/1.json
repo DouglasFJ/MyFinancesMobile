@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d7c356bcc5b5b6ae34c048b10dd06e71",
+    "identityHash": "85d4a12b03b9560a950bee3519abc008",
     "entities": [
       {
         "tableName": "CARTOES",
@@ -114,7 +114,7 @@
       },
       {
         "tableName": "MESES_VALORES",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_MES_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `ID_MES` INTEGER, `ID_VALOR` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_MES_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `ID_MES` INTEGER, `ID_VALOR` INTEGER, `INDICADOR_DESPESA_PAGA` INTEGER)",
         "fields": [
           {
             "fieldPath": "idMesValor",
@@ -133,6 +133,12 @@
             "columnName": "ID_VALOR",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "indicadorDespesaPaga",
+            "columnName": "INDICADOR_DESPESA_PAGA",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -146,7 +152,7 @@
       },
       {
         "tableName": "VALORES",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `NOME_VALOR` TEXT, `VALOR_REAIS` REAL NOT NULL, `DATA_INSERCAO_VALOR` INTEGER, `INDICADOR_VALOR_FIXO` INTEGER NOT NULL, `INDICADOR_VALOR_DESPESA` INTEGER NOT NULL, `INDICADOR_DESPESA_PAGA` INTEGER NOT NULL, `TIPO_VALOR` TEXT, `ID_COMPRA_CARTAO` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `NOME_VALOR` TEXT, `VALOR_REAIS` REAL NOT NULL, `DATA_INSERCAO_VALOR` INTEGER, `INDICADOR_VALOR_FIXO` INTEGER, `INDICADOR_TIPO_VALOR` INTEGER, `TIPO_DESPESA` TEXT, `ID_COMPRA_CARTAO` INTEGER)",
         "fields": [
           {
             "fieldPath": "idValor",
@@ -176,23 +182,17 @@
             "fieldPath": "indicadorValorFixo",
             "columnName": "INDICADOR_VALOR_FIXO",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
-            "fieldPath": "indicadorValorDespesa",
-            "columnName": "INDICADOR_VALOR_DESPESA",
+            "fieldPath": "indicadorTipoValor",
+            "columnName": "INDICADOR_TIPO_VALOR",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
-            "fieldPath": "indicadorDespesaPaga",
-            "columnName": "INDICADOR_DESPESA_PAGA",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "tipoValor",
-            "columnName": "TIPO_VALOR",
+            "fieldPath": "tipoDespesa",
+            "columnName": "TIPO_DESPESA",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -216,7 +216,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd7c356bcc5b5b6ae34c048b10dd06e71')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '85d4a12b03b9560a950bee3519abc008')"
     ]
   }
 }

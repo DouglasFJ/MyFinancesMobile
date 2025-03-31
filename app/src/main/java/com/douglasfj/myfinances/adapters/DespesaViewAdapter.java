@@ -50,7 +50,7 @@ public class DespesaViewAdapter extends ArrayAdapter<ValoresEntity> {
             View wrapperImagem = itemView.findViewById(R.id.layout_despesa_wrapper_imagem);
             ImageView imagemView = itemView.findViewById(R.id.layout_despesa_imagem);
 
-            TipoDespesa tipoDespesa = itemDepesa.getTipoDespesa();
+            TipoDespesa tipoDespesa = itemDepesa.tipoDespesa;
 
 
             // Faz as alterações

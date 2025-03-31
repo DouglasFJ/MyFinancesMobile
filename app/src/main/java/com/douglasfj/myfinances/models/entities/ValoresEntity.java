@@ -5,6 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.douglasfj.myfinances.constantes.IndicadorTipoValor;
+import com.douglasfj.myfinances.constantes.IndicadorValorFixo;
 import com.douglasfj.myfinances.constantes.TipoDespesa;
 
 import java.util.Date;
@@ -14,14 +16,14 @@ public class ValoresEntity {
     public ValoresEntity() {
     }
 
-    public ValoresEntity(String nomeValor, double valorReais, Date dataInsercaoValor, int indicadorValorFixo, int indicadorValorDespesa, int indicadorDespesaPaga, String tipoValor, Long idCompraCartao) {
+    @Ignore
+    public ValoresEntity(String nomeValor, double valorReais, Date dataInsercaoValor, IndicadorValorFixo indicadorValorFixo, IndicadorTipoValor indicadorTipoValor, TipoDespesa tipoValor, Long idCompraCartao) {
         this.nomeValor = nomeValor;
         this.valorReais = valorReais;
         this.dataInsercaoValor = dataInsercaoValor;
         this.indicadorValorFixo = indicadorValorFixo;
-        this.indicadorValorDespesa = indicadorValorDespesa;
-        this.indicadorDespesaPaga = indicadorDespesaPaga;
-        this.tipoValor = tipoValor;
+        this.indicadorTipoValor = indicadorTipoValor;
+        this.tipoDespesa = tipoValor;
         this.idCompraCartao = idCompraCartao;
     }
 
@@ -39,22 +41,15 @@ public class ValoresEntity {
     public Date dataInsercaoValor;
 
     @ColumnInfo(name = "INDICADOR_VALOR_FIXO")
-    public int indicadorValorFixo;
+    public IndicadorValorFixo indicadorValorFixo;
 
-    @ColumnInfo(name = "INDICADOR_VALOR_DESPESA")
-    public int indicadorValorDespesa;
+    @ColumnInfo(name = "INDICADOR_TIPO_VALOR")
+    public IndicadorTipoValor indicadorTipoValor;
 
-    @ColumnInfo(name = "INDICADOR_DESPESA_PAGA")
-    public int indicadorDespesaPaga;
-
-    @ColumnInfo(name = "TIPO_VALOR")
-    public String tipoValor;
+    @ColumnInfo(name = "TIPO_DESPESA")
+    public TipoDespesa tipoDespesa;
 
     @ColumnInfo(name = "ID_COMPRA_CARTAO")
     public Long idCompraCartao;
 
-    @Ignore
-    public TipoDespesa getTipoDespesa() {
-        return TipoDespesa.valueOf(tipoValor);
-    }
 }

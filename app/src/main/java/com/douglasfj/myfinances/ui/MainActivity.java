@@ -1,23 +1,29 @@
 package com.douglasfj.myfinances.ui;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.douglasfj.myfinances.R;
 import com.douglasfj.myfinances.dao.MesesDAO;
 import com.douglasfj.myfinances.database.MyFinancesDatabase;
 import com.douglasfj.myfinances.models.entities.MesesEntity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
 import com.douglasfj.myfinances.databinding.ActivityMainBinding;
+
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private ActivityMainBinding binding;
 
     @Override
@@ -30,19 +36,27 @@ public class MainActivity extends AppCompatActivity {
         setNavigation();
         setMonthContext();
     }
-    private void setMonthContext(){
+
+    private void setMonthContext() {
         MyFinancesDatabase database = MyFinancesDatabase.getDatabase(getBaseContext());
         MesesDAO mesesDAO = database.mesesDAO();
         MesesEntity mesSelecionadoValue = GlobalState.MES_SELECIONADO.getValue();
-        mesesDAO.getByMesAnoAsync(mesSelecionadoValue.mes, mesSelecionadoValue.ano).observe(this, mesesEntity -> {
-
-            if (mesesEntity == null) {
-                mesesDAO.insertAll(mesSelecionadoValue);
-                GlobalState.MES_SELECIONADO.setValue(mesesDAO.getByMesAno(mesSelecionadoValue.mes, mesSelecionadoValue.ano));
-            } else
-                GlobalState.MES_SELECIONADO.setValue(mesesEntity);
-        });
+        Disposable subscribe = mesesDAO.getByMesAno(mesSelecionadoValue.mes, mesSelecionadoValue.ano)
+                .subscribeOn(Schedulers.io())
+                .subscribe(GlobalState.MES_SELECIONADO::onNext, throwable -> {
+                    Disposable subscribe1 = mesesDAO.insertAll(mesSelecionadoValue)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(() -> {
+                                Disposable subscribe2 = mesesDAO.getByMesAno(mesSelecionadoValue.mes, mesSelecionadoValue.ano)
+                                        .subscribeOn(Schedulers.io())
+                                        .subscribe(GlobalState.MES_SELECIONADO::onNext);
+                                compositeDisposable.add(subscribe2);
+                            });
+                    compositeDisposable.add(subscribe1);
+                });
+        compositeDisposable.add(subscribe);
     }
+
     private void setNavigation() {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -55,4 +69,9 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.clear();
+    }
 }
