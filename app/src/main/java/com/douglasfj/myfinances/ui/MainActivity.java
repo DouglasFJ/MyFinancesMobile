@@ -1,77 +1,44 @@
 package com.douglasfj.myfinances.ui;
 
 import android.os.Bundle;
-
-import com.douglasfj.myfinances.R;
-import com.douglasfj.myfinances.dao.MesesDAO;
-import com.douglasfj.myfinances.database.MyFinancesDatabase;
-import com.douglasfj.myfinances.models.entities.MesesEntity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
+import com.douglasfj.myfinances.R;
 import com.douglasfj.myfinances.databinding.ActivityMainBinding;
 
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 public class MainActivity extends AppCompatActivity {
-
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private ActivityMainBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    private ImportProgressDialog importProgress;
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        setNavigation();
-        setMonthContext();
-    }
-
-    private void setMonthContext() {
-        MyFinancesDatabase database = MyFinancesDatabase.getDatabase(getBaseContext());
-        MesesDAO mesesDAO = database.mesesDAO();
-        MesesEntity mesSelecionadoValue = GlobalState.MES_SELECIONADO.getValue();
-        Disposable subscribe = mesesDAO.getByMesAno(mesSelecionadoValue.mes, mesSelecionadoValue.ano)
-                .subscribeOn(Schedulers.io())
-                .subscribe(GlobalState.MES_SELECIONADO::onNext, throwable -> {
-                    Disposable subscribe1 = mesesDAO.insertAll(mesSelecionadoValue)
-                            .subscribeOn(Schedulers.io())
-                            .subscribe(() -> {
-                                Disposable subscribe2 = mesesDAO.getByMesAno(mesSelecionadoValue.mes, mesSelecionadoValue.ano)
-                                        .subscribeOn(Schedulers.io())
-                                        .subscribe(GlobalState.MES_SELECIONADO::onNext);
-                                compositeDisposable.add(subscribe2);
-                            });
-                    compositeDisposable.add(subscribe1);
-                });
-        compositeDisposable.add(subscribe);
-    }
-
-    private void setNavigation() {
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_month, R.id.navigation_card)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        // NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        compositeDisposable.clear();
+        WindowCompat.getInsetsController(getWindow(),binding.getRoot()).setAppearanceLightStatusBars(true);
+        WindowCompat.getInsetsController(getWindow(),binding.getRoot()).setAppearanceLightNavigationBars(true);
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(),(view,insets) -> {
+            androidx.core.graphics.Insets bars=insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            view.setPadding(bars.left,bars.top,bars.right,bars.bottom); return insets;
+        });
+        NavigationUI.setupWithNavController(binding.navView,Navigation.findNavController(this,R.id.nav_host_fragment_activity_main));
+        FinanceViewModel model=new ViewModelProvider(this).get(FinanceViewModel.class);
+        model.importing().observe(this,importing -> {
+            if (getSupportFragmentManager().isStateSaved()) return;
+            androidx.fragment.app.Fragment progress=getSupportFragmentManager().findFragmentByTag("database-import-progress");
+            if (progress instanceof ImportProgressDialog) importProgress=(ImportProgressDialog) progress;
+            if (importing && importProgress==null) {
+                importProgress=new ImportProgressDialog();
+                importProgress.show(getSupportFragmentManager(),"database-import-progress");
+            } else if (!importing && importProgress!=null) {
+                importProgress.dismiss(); importProgress=null;
+            }
+        });
+        model.message().observe(this,event -> {
+            String message=event.consume(); if(message!=null) Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        });
     }
 }

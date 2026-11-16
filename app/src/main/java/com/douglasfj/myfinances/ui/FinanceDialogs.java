@@ -1,0 +1,137 @@
+package com.douglasfj.myfinances.ui;
+
+import android.text.InputType;
+import android.widget.*;
+import com.douglasfj.myfinances.R;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import com.douglasfj.myfinances.constantes.*;
+import com.douglasfj.myfinances.data.*;
+import com.douglasfj.myfinances.data.FinanceModels.*;
+import com.douglasfj.myfinances.models.entities.*;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.function.Consumer;
+
+public final class FinanceDialogs {
+    private FinanceDialogs() {}
+    private static FinanceViewModel model(Fragment f) { return new ViewModelProvider(f.requireActivity()).get(FinanceViewModel.class); }
+    public static void pickMonth(Fragment fragment, YearMonth initial, Consumer<YearMonth> selected) {
+        LinearLayout content = form(fragment);
+        NumberPicker month = new NumberPicker(fragment.requireContext()); month.setMinValue(1); month.setMaxValue(12);
+        month.setDisplayedValues(new String[]{"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"});
+        month.setValue(initial.getMonthValue()); month.setContentDescription("Mês"); content.addView(month);
+        NumberPicker year = new NumberPicker(fragment.requireContext()); year.setMinValue(1900); year.setMaxValue(2200);
+        year.setValue(initial.getYear()); year.setContentDescription("Ano"); content.addView(year);
+        new AlertDialog.Builder(fragment.requireContext()).setTitle("Selecionar mês").setView(content)
+                .setNegativeButton("Cancelar", null).setPositiveButton("Selecionar", (d,w) -> {
+                    content.clearFocus(); selected.accept(YearMonth.of(year.getValue(), month.getValue()));
+                }).show();
+    }
+    private static LinearLayout form(Fragment f) {
+        LinearLayout form = FinanceUi.column(f.requireContext()); int p = FinanceUi.dp(f.requireContext(),20);
+        form.setPadding(p,p,p,p); return form;
+    }
+    private static TextView label(LinearLayout form, String text, int size) {
+        TextView label=FinanceUi.text(form,text,size);
+        label.setTextColor(form.getContext().getColor(R.color.dialog_text));
+        return label;
+    }
+    private static EditText field(LinearLayout form, String title, String value, int type) {
+        label(form, title, 14); EditText field = new EditText(form.getContext()); field.setHint(title);
+        field.setContentDescription(title); field.setInputType(type); field.setSingleLine(true); field.setText(value);
+        form.addView(field, new LinearLayout.LayoutParams(-1,-2)); return field;
+    }
+    private static CheckBox check(LinearLayout form, String label, boolean checked) {
+        CheckBox check = new CheckBox(form.getContext()); check.setText(label); check.setChecked(checked); form.addView(check); return check;
+    }
+    private static void dialog(Fragment f, String title, LinearLayout form, Runnable save) {
+        ScrollView scroll = new ScrollView(f.requireContext()); scroll.addView(form);
+        TextView error = label(form,"",14); error.setTextColor(form.getContext().getColor(R.color.dialog_error));
+        error.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        AlertDialog dialog = new AlertDialog.Builder(f.requireContext()).setTitle(title).setView(scroll)
+                .setNegativeButton("Cancelar",null).setPositiveButton("Salvar",null).create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            try { save.run(); dialog.dismiss(); }
+            catch (IllegalArgumentException e) { error.setText(e.getMessage()); }
+        })); dialog.show();
+    }
+    private static String required(EditText field) {
+        String value = field.getText().toString().trim();
+        if (value.isEmpty() || value.length()>120) throw new IllegalArgumentException("Informe um nome de 1 a 120 caracteres.");
+        return value;
+    }
+    public static void entry(Fragment f, Entry existing, boolean income) {
+        FinanceViewModel vm = model(f); LinearLayout form = form(f);
+        ValoresEntity value = existing == null ? null : existing.value;
+        EditText name = field(form,"Nome do lançamento", value == null ? "" : value.nomeValor, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        EditText amount = field(form,"Valor em reais", value == null ? "" : Money.input(value.valorReais), InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        YearMonth[] month = {vm.month()};
+        Button monthButton = FinanceUi.button(form,FinanceUi.month(month[0]),v -> {});
+        monthButton.setOnClickListener(v -> pickMonth(f,month[0],selected -> {month[0]=selected; monthButton.setText(FinanceUi.month(selected));}));
+        if (existing != null) monthButton.setEnabled(false);
+        CheckBox tax = check(form,"É um imposto", value != null && value.imposto); tax.setVisibility(income ? android.view.View.GONE : android.view.View.VISIBLE);
+        CheckBox fixed = check(form,"Repetir todo mês (valor fixo)", value != null && value.mesInicioFixo != null);
+        CheckBox paid = check(form,"Já foi paga", existing != null && existing.paid == IndicadorDespesaPaga.PAGA); paid.setVisibility(income ? android.view.View.GONE : android.view.View.VISIBLE);
+        label(form,"Valores fixos repetem a partir deste mês. Alterações valem para este mês e os seguintes; meses anteriores são preservados.",13);
+        dialog(f,existing == null ? (income ? "Nova receita" : "Nova despesa") : "Editar lançamento",form,() ->
+                vm.saveEntry(value == null ? null : value.idValor,month[0],required(name),Money.parse(amount.getText().toString()),income,tax.isChecked(),fixed.isChecked(),paid.isChecked()));
+    }
+    public static void entryActions(Fragment f, Entry entry) {
+        FinanceViewModel vm = model(f); boolean income = entry.value.indicadorTipoValor == IndicadorTipoValor.RECEITA;
+        boolean card = entry.value.idCompraCartao != null;
+        if (card) {
+            new AlertDialog.Builder(f.requireContext()).setTitle(entry.value.nomeValor)
+                    .setMessage("Parcela do cartão " + entry.cardName + ". Edite ou exclua a compra na aba Cartões.")
+                    .setNegativeButton("Fechar",null).setPositiveButton(entry.paid == IndicadorDespesaPaga.PAGA ? "Marcar pendente" : "Marcar paga",
+                            (d,w) -> vm.paid(entry.linkId,entry.paid != IndicadorDespesaPaga.PAGA)).show(); return;
+        }
+        String[] actions = income ? new String[]{"Editar","Excluir"} : new String[]{entry.paid == IndicadorDespesaPaga.PAGA ? "Marcar pendente" : "Marcar paga","Editar","Excluir"};
+        new AlertDialog.Builder(f.requireContext()).setTitle(entry.value.nomeValor).setItems(actions,(d,which) -> {
+            int action = income ? which + 1 : which;
+            if (action==0) vm.paid(entry.linkId, entry.paid != IndicadorDespesaPaga.PAGA);
+            else if(action==1) entry(f,entry,income);
+            else confirm(f,"Excluir lançamento?",entry.value.mesInicioFixo != null ?
+                    "A repetição será encerrada a partir do mês selecionado. Os meses anteriores serão preservados." : "Este lançamento será removido do mês.",
+                    () -> vm.deleteEntry(entry.value.idValor,vm.month()));
+        }).show();
+    }
+    public static void confirm(Fragment f, String title, String message, Runnable action) {
+        new AlertDialog.Builder(f.requireContext()).setTitle(title).setMessage(message).setNegativeButton("Cancelar",null)
+                .setPositiveButton("Confirmar",(d,w) -> action.run()).show();
+    }
+    public static void card(Fragment f, CartoesEntity card) {
+        LinearLayout form = form(f); EditText name = field(form,"Nome do cartão",card == null ? "" : card.nomeCartao,InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        dialog(f,card == null ? "Novo cartão" : "Renomear cartão",form,() -> model(f).saveCard(card == null ? null : card.idCartao,required(name)));
+    }
+    public static void purchase(Fragment f, Purchase existing, Long preferredCard) {
+        FinanceViewModel vm = model(f); State state = vm.state().getValue();
+        if (state == null || state.cards.isEmpty()) { card(f,null); return; }
+        List<CartoesEntity> cards = state.cards;
+        ComprasCartoesEntity purchase = existing == null ? null : existing.purchase;
+        LinearLayout form = form(f);
+        EditText name = field(form,"Nome da compra",purchase == null ? "" : purchase.nomeCompra,InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        EditText amount = field(form,"Valor total em reais",purchase == null ? "" : Money.input(purchase.valorCompra),InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        EditText installments = field(form,"Número de parcelas (1 a 120)",purchase == null ? "1" : String.valueOf(purchase.numeroParcelas),InputType.TYPE_CLASS_NUMBER);
+        label(form,"Cartão",14); Spinner spinner = new Spinner(f.requireContext());
+        String[] labels = new String[cards.size()]; int selection = 0;
+        long target = purchase != null ? purchase.idCartao : preferredCard == null ? -1 : preferredCard;
+        for(int i=0;i<cards.size();i++) { labels[i]=cards.get(i).nomeCartao; if(cards.get(i).idCartao==target) selection=i; }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(f.requireContext(),android.R.layout.simple_spinner_dropdown_item,labels);
+        spinner.setAdapter(adapter); spinner.setSelection(selection); spinner.setContentDescription("Cartão da compra"); form.addView(spinner);
+        YearMonth[] first = {purchase == null || purchase.dataPrimeiraParcela == null ? vm.month() : YearMonth.from(purchase.dataPrimeiraParcela.toInstant().atZone(ZoneId.systemDefault()))};
+        label(form,"Mês da primeira parcela",14);
+        Button month = FinanceUi.button(form,FinanceUi.month(first[0]),v -> {});
+        month.setOnClickListener(v -> pickMonth(f,first[0],selected -> {first[0]=selected; month.setText(FinanceUi.month(selected));}));
+        label(form,"O valor total será dividido em parcelas mensais. Eventuais centavos serão distribuídos nas primeiras parcelas.",13);
+        if(purchase!=null) label(form,"Ao editar, todas as parcelas serão recalculadas e marcadas como pendentes.",13);
+        dialog(f,purchase == null ? "Nova compra no cartão" : "Editar compra",form,() -> {
+            int count;
+            try { count=Integer.parseInt(installments.getText().toString()); } catch(NumberFormatException e) { throw new IllegalArgumentException("Informe de 1 a 120 parcelas."); }
+            long cents = Money.parse(amount.getText().toString()); Money.split(cents,count);
+            vm.savePurchase(purchase == null ? null : purchase.idCompraCartao,cards.get(spinner.getSelectedItemPosition()).idCartao,required(name),cents,count,first[0]);
+        });
+    }
+}

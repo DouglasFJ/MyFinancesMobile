@@ -38,6 +38,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 }
 
 dependencies {
@@ -61,5 +62,6 @@ dependencies {
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
     testImplementation(libs.room.testing)
+    androidTestImplementation(libs.room.testing)
     implementation(libs.room.rxjava3)
 }

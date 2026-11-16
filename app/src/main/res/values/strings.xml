@@ -3,6 +3,12 @@
     <string name="title_home">início</string>
     <string name="title_month">mês</string>
     <string name="title_cards">cartões</string>
-    <string name="title_emergencial_box">caixa</string>
+    <string name="title_invoices">faturas</string>
+    <string name="title_emergencial_box">backup</string>
     <string name="default_month_text">Jan/00</string>
+    <string name="str_default_money">R$ 000,00</string>
+    <string name="str_default_nome_despesa">Nome da Despesa</string>
+    <string name="str_card_ultimas_despesas">Últimas despesas</string>
+    <string name="str_card_falta_pagar">Falta pagar</string>
+    <string name="str_selecionar_mes">Meses:</string>
 </resources>

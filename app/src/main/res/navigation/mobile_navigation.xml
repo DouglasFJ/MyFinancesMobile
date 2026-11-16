@@ -19,13 +19,18 @@
 
     <fragment
         android:id="@+id/navigation_card"
-        android:name="com.douglasfj.myfinances.ui.notifications.NotificationsFragment"
+        android:name="com.douglasfj.myfinances.ui.cards.CardsFragment"
         android:label="@string/title_cards"
         tools:layout="@layout/fragment_notifications" />
 
     <fragment
+        android:id="@+id/navigation_invoice"
+        android:name="com.douglasfj.myfinances.ui.cards.InvoiceFragment"
+        android:label="@string/title_invoices"/>
+
+    <fragment
         android:id="@+id/navigation_emergencial_box"
-        android:name="com.douglasfj.myfinances.ui.notifications.NotificationsFragment"
+        android:name="com.douglasfj.myfinances.ui.BackupFragment"
         android:label="@string/title_emergencial_box"
         tools:layout="@layout/fragment_notifications" />
 </navigation>

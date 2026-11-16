@@ -26,40 +26,22 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeViewModel extends ViewModel {
 
+    private MyFinancesDatabase db;
+
     ValoresDAO valoresDAO;
     MesesValoresDAO mesesValoresDAO;
-
-    LiveData<List<ValoresEntity>> despesasFaltaPagarDoMes = new MutableLiveData<>(new ArrayList<>());
-
-    LiveData<Double> saldoEntrada = new MutableLiveData<>((double) 0);
-    LiveData<Double> saldoSaida = new MutableLiveData<>((double) 0);
 
     public HomeViewModel() {
     }
 
     void setDatabaseContext(Context context) {
-        MyFinancesDatabase database = MyFinancesDatabase.getDatabase(context);
-        valoresDAO = database.valoresDAO();
-        mesesValoresDAO = database.mesesValoresDAO();
+        db = MyFinancesDatabase.getDatabase(context);
+        valoresDAO = db.valoresDAO();
+        mesesValoresDAO = db.mesesValoresDAO();
+    }
 
-
-        //FIXME: testes deletar depois
-//        GlobalState.MES_SELECIONADO.observeForever(mesesEntity -> {
-//            Disposable subscribe = valoresDAO.insertAll(
-//                    new ValoresEntity("valor 1", 15.50, new Date(), IndicadorValorFixo.FIXO, IndicadorTipoValor.DESPESA, TipoDespesa.ESSENCIAL, null),
-//                    new ValoresEntity("valor 2", 18.50, new Date(), IndicadorValorFixo.NAO_FIXO, IndicadorTipoValor.DESPESA, TipoDespesa.ALIMENTACAO, null),
-//                    new ValoresEntity("valor 3", 450.50, new Date(), IndicadorValorFixo.FIXO, IndicadorTipoValor.DESPESA, TipoDespesa.EXTRAS, null)
-//            ).subscribeOn(Schedulers.io()).subscribe(() -> {
-//                List<ValoresEntity> valores = valoresDAO.getAll();
-//
-//                valores.forEach(valor -> {
-//                    mesesValoresDAO.insertAll(
-//                            new MesesValoresEntity(mesesEntity.idMes, valor.idValor, IndicadorDespesaPaga.NAO_PAGA)
-//                    );
-//                });
-//            });
-//        });
-
+    void closeDatabase() {
+        db.close();
     }
 
     List<ValoresEntity> getAllDespesasFaltaPagarDoMes(int idMes) {
@@ -73,5 +55,10 @@ public class HomeViewModel extends ViewModel {
     Double getSaldoSaidaSync(int idMes) {
         return valoresDAO.getSaldoSaidaMes(idMes);
     }
+
+    public List<ValoresEntity> getUltimasDespesas(int idMes) {
+        return valoresDAO.getUltimasDezDespesas(idMes);
+    }
+
 
 }

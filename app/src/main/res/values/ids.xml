@@ -1,0 +1,4 @@
+<resources>
+    <item name="invoice_card_selector" type="id"/>
+    <item name="invoice_total" type="id"/>
+</resources>

@@ -15,10 +15,25 @@
         <item name="fontFamily">@font/nunito_semibold</item>
         
         <item name="buttonStyle">@style/Widget.MyFinances.Button</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.MyFinances.AlertDialog</item>
     </style>
     
     <style name="Widget.MyFinances.Button" parent="Widget.Material3.Button">
         <item name="android:elevation">6dp</item>
         <item name="android:translationZ">2dp</item>
+    </style>
+
+    <style name="ThemeOverlay.MyFinances.AlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:colorBackgroundFloating">@color/dialog_background</item>
+        <item name="android:textColorPrimary">@color/dialog_text</item>
+        <item name="android:textColorSecondary">@color/dialog_text</item>
+        <item name="colorAccent">@color/dialog_action</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyFinances.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyFinances.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.MyFinances.DialogButton</item>
+    </style>
+
+    <style name="Widget.MyFinances.DialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/dialog_action</item>
     </style>
 </resources>

@@ -1,6 +1,5 @@
 package com.douglasfj.myfinances.dao;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -8,7 +7,6 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
-import com.douglasfj.myfinances.models.entities.MesesEntity;
 import com.douglasfj.myfinances.models.entities.ValorWithMesesValoresRelationship;
 import com.douglasfj.myfinances.models.entities.ValoresEntity;
 
@@ -20,7 +18,10 @@ import io.reactivex.rxjava3.core.Completable;
 public interface ValoresDAO {
 
     @Insert
-    Completable insertAll(ValoresEntity... valores);
+    Completable insertAllAsync(ValoresEntity... valores);
+
+    @Insert
+    void insertAllSync(ValoresEntity... valores);
 
     @Delete
     void delete(ValoresEntity valor);
@@ -48,6 +49,14 @@ public interface ValoresDAO {
             "ID_VALOR IN " +
             "(SELECT ID_VALOR FROM MESES_VALORES WHERE ID_MES == :idMes)")
     Double getSaldoSaidaMes(int idMes);
+
+    @Query("SELECT * FROM VALORES WHERE " +
+            "INDICADOR_TIPO_VALOR == 0 AND " +
+            "ID_VALOR IN " +
+            "(SELECT ID_VALOR FROM MESES_VALORES WHERE ID_MES == :idMes)" +
+            "ORDER BY DATA_INSERCAO_VALOR DESC " +
+            "LIMIT 10")
+    List<ValoresEntity> getUltimasDezDespesas(int idMes);
 
     @Query("SELECT * FROM VALORES WHERE ID_VALOR == :idValor")
     ValoresEntity getByID(int idValor);

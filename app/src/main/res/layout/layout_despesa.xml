@@ -39,8 +39,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
-            android:textSize="10sp"
-            android:text="Nome da Despesa"
+            android:textSize="12sp"
+            android:text="@string/str_default_nome_despesa"
             android:textColor="@color/neutral_950"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"/>
@@ -49,8 +49,8 @@
             android:id="@+id/layout_despesa_despesa"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="8sp"
-            android:text="R$ 000,00"
+            android:textSize="11sp"
+            android:text="@string/str_default_money"
             android:textColor="@color/neutral_700"
             app:layout_constraintTop_toBottomOf="@id/layout_despesa_nome_despesa"
             app:layout_constraintLeft_toLeftOf="parent"/>

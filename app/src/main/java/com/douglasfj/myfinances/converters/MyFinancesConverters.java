@@ -80,7 +80,7 @@ public class MyFinancesConverters {
     }
 
     @TypeConverter
-    public static String tipoDespesaToString(IndicadorTipoValor value) {
+    public static String tipoDespesaToString(TipoDespesa value) {
         if (value == null) return null;
         else return value.name();
     }

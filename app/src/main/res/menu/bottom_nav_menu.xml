@@ -17,8 +17,13 @@
         android:title="@string/title_cards"/>
 
     <item
+        android:id="@+id/navigation_invoice"
+        android:icon="@drawable/transaction"
+        android:title="@string/title_invoices"/>
+
+    <item
         android:id="@+id/navigation_emergencial_box"
-        android:icon="@drawable/moneybox"
+        android:icon="@drawable/backup"
         android:title="@string/title_emergencial_box"/>
 
 </menu>

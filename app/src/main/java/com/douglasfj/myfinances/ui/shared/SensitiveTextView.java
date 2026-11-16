@@ -7,12 +7,14 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 
 import com.douglasfj.myfinances.ui.GlobalState;
 
 public class SensitiveTextView extends AppCompatTextView {
     private boolean isSensitiveVisible = true;
     private Paint linePaint;
+    private final Observer<Boolean> visibilityObserver = visible -> setSensitiveVisible(Boolean.TRUE.equals(visible));
 
     public SensitiveTextView(Context context) {
         super(context);
@@ -40,14 +42,14 @@ public class SensitiveTextView extends AppCompatTextView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        GlobalState.IS_VALUES_VISIBLE.observeForever(this::setSensitiveVisible);
+        GlobalState.IS_VALUES_VISIBLE.observeForever(visibilityObserver);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        GlobalState.IS_VALUES_VISIBLE.removeObserver(this::setSensitiveVisible);
+        GlobalState.IS_VALUES_VISIBLE.removeObserver(visibilityObserver);
     }
 
     public void setSensitiveVisible(boolean isVisible) {

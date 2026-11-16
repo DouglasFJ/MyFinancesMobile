@@ -17,13 +17,13 @@ public class ValoresEntity {
     }
 
     @Ignore
-    public ValoresEntity(String nomeValor, double valorReais, Date dataInsercaoValor, IndicadorValorFixo indicadorValorFixo, IndicadorTipoValor indicadorTipoValor, TipoDespesa tipoValor, Long idCompraCartao) {
+    public ValoresEntity(String nomeValor, double valorReais, Date dataInsercaoValor, IndicadorValorFixo indicadorValorFixo, IndicadorTipoValor indicadorTipoValor, TipoDespesa tipoDespesa, Long idCompraCartao) {
         this.nomeValor = nomeValor;
         this.valorReais = valorReais;
         this.dataInsercaoValor = dataInsercaoValor;
         this.indicadorValorFixo = indicadorValorFixo;
         this.indicadorTipoValor = indicadorTipoValor;
-        this.tipoDespesa = tipoValor;
+        this.tipoDespesa = tipoDespesa;
         this.idCompraCartao = idCompraCartao;
     }
 
@@ -51,5 +51,14 @@ public class ValoresEntity {
 
     @ColumnInfo(name = "ID_COMPRA_CARTAO")
     public Long idCompraCartao;
+
+    @ColumnInfo(name = "IMPOSTO", defaultValue = "0")
+    public boolean imposto;
+
+    @ColumnInfo(name = "MES_INICIO_FIXO")
+    public Integer mesInicioFixo;
+
+    @ColumnInfo(name = "MES_FIM_FIXO")
+    public Integer mesFimFixo;
 
 }
