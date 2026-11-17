@@ -18,8 +18,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        WindowCompat.getInsetsController(getWindow(),binding.getRoot()).setAppearanceLightStatusBars(true);
-        WindowCompat.getInsetsController(getWindow(),binding.getRoot()).setAppearanceLightNavigationBars(true);
+        WindowCompat.getInsetsController(getWindow(),binding.getRoot()).setAppearanceLightStatusBars(getResources().getBoolean(R.bool.finance_light_system_bars));
+        WindowCompat.getInsetsController(getWindow(),binding.getRoot()).setAppearanceLightNavigationBars(getResources().getBoolean(R.bool.finance_light_system_bars));
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(),(view,insets) -> {
             androidx.core.graphics.Insets bars=insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
             view.setPadding(bars.left,bars.top,bars.right,bars.bottom); return insets;

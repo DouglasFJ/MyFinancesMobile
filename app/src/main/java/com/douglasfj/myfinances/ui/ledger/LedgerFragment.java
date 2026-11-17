@@ -49,7 +49,7 @@ public class LedgerFragment extends Fragment implements LedgerAdapter.Actions {
         filters.setPadding(padding,0,padding,0); root.addView(filters);
         TextInputLayout input=new TextInputLayout(requireContext()); input.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
         input.setHint(income ? "Buscar receita pelo nome" : "Buscar despesa pelo nome");
-        input.setBoxStrokeColor(color); input.setBoxBackgroundColor(android.graphics.Color.WHITE); input.setDefaultHintTextColor(ColorStateList.valueOf(color));
+        input.setBoxStrokeColor(color); input.setBoxBackgroundColor(requireContext().getColor(R.color.neutral_50)); input.setDefaultHintTextColor(ColorStateList.valueOf(color));
         input.setEndIconMode(TextInputLayout.END_ICON_CLEAR_TEXT);
         input.setEndIconTintList(ColorStateList.valueOf(color));
         search=new TextInputEditText(input.getContext()); search.setId(R.id.ledger_search); search.setSingleLine(true);

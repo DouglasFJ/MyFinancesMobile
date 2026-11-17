@@ -59,7 +59,9 @@ public final class FinanceDialogs {
         form.addView(field, new LinearLayout.LayoutParams(-1,-2)); return field;
     }
     private static CheckBox check(LinearLayout form, String label, boolean checked) {
-        CheckBox check = new CheckBox(form.getContext()); check.setText(label); check.setChecked(checked); form.addView(check); return check;
+        CheckBox check = new CheckBox(form.getContext()); check.setText(label); check.setChecked(checked);
+        check.setTextColor(FinanceUi.color(form.getContext(),R.attr.financeTextColor,form.getContext().getColor(R.color.dialog_text)));
+        form.addView(check); return check;
     }
     private static void dialog(Fragment f, String title, LinearLayout form, Runnable save) {
         ScrollView scroll = new ScrollView(form.getContext()); scroll.addView(form);

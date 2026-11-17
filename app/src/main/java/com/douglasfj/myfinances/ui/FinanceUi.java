@@ -49,18 +49,18 @@ public final class FinanceUi {
     public static LinearLayout page(Context c, ScrollView scroll) {
         LinearLayout layout = column(c); int padding = dp(c, 20);
         layout.setPadding(padding, padding, padding, padding); scroll.setFillViewport(true);
-        scroll.setBackgroundColor(color(c,R.attr.financePageBackground,Color.rgb(245, 247, 246))); scroll.addView(layout); return layout;
+        scroll.setBackgroundColor(color(c,R.attr.financePageBackground,c.getColor(R.color.neutral_100))); scroll.addView(layout); return layout;
     }
     public static TextView text(LinearLayout parent, String value, int size) {
         TextView text = new TextView(parent.getContext()); text.setText(value); text.setTextSize(size);
-        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,Color.rgb(30, 45, 40)));
+        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,parent.getContext().getColor(R.color.neutral_950)));
         int p = dp(parent.getContext(), 6);
         text.setPadding(0, p, 0, p); parent.addView(text); return text;
     }
 
     public static TextView text(ViewGroup parent, String value, int size) {
         TextView text = new TextView(parent.getContext()); text.setText(value); text.setTextSize(size);
-        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,Color.rgb(30, 45, 40)));
+        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,parent.getContext().getColor(R.color.neutral_950)));
         int p = dp(parent.getContext(), 6);
         text.setPadding(0, p, 0, p); parent.addView(text); return text;
     }
@@ -69,7 +69,7 @@ public final class FinanceUi {
         SensitiveTextView text = new SensitiveTextView(parent.getContext());
         text.setText(value);
         text.setTextSize(size);
-        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,Color.rgb(30, 45, 40)));
+        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,parent.getContext().getColor(R.color.neutral_950)));
         int p = dp(parent.getContext(), 6);
         text.setPadding(0, p, 0, p); parent.addView(text);
         return text;
@@ -106,10 +106,10 @@ public final class FinanceUi {
         button.setMinHeight(dp(parent.getContext(), 48));
         button.setBackgroundTintList(
                 ColorStateList.valueOf(
-                        color(parent.getContext(),R.attr.financeActionColor,Color.rgb(4, 120, 87))
+                        color(parent.getContext(),R.attr.financeActionColor,parent.getContext().getColor(R.color.emerald_700))
                 )
         );
-        button.setTextColor(Color.WHITE);
+        button.setTextColor(parent.getContext().getColor(R.color.neutral_50));
         parent.addView(button, new LinearLayout.LayoutParams(-1, -2));
         button.setOnClickListener(action);
         return button;
@@ -122,10 +122,10 @@ public final class FinanceUi {
         button.setMinHeight(dp(parent.getContext(), 48));
         button.setBackgroundTintList(
                 ColorStateList.valueOf(
-                        color(parent.getContext(),R.attr.financeActionColor,Color.rgb(4, 120, 87))
+                        color(parent.getContext(),R.attr.financeActionColor,parent.getContext().getColor(R.color.emerald_700))
                 )
         );
-        button.setTextColor(Color.WHITE);
+        button.setTextColor(parent.getContext().getColor(R.color.neutral_50));
         parent.addView(button, params);
         button.setOnClickListener(action);
         return button;
@@ -137,7 +137,7 @@ public final class FinanceUi {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
         params.setMargins(0, dp(c, 10), 0, dp(c, 4));
         card.setLayoutParams(params);
-        card.setCardBackgroundColor(Color.WHITE);
+        card.setCardBackgroundColor(c.getColor(R.color.neutral_50));
         card.setRadius(dp(c, 14));
         card.setStrokeWidth(0);
         card.setCardElevation(2);

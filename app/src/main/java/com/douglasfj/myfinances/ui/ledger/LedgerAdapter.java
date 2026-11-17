@@ -34,7 +34,7 @@ final class LedgerAdapter extends RecyclerView.Adapter<LedgerAdapter.Holder> {
         MaterialCardView card=new MaterialCardView(context);
         RecyclerView.LayoutParams params=new RecyclerView.LayoutParams(-1,-2);
         int margin=FinanceUi.dp(context,8); params.setMargins(0,margin,0,margin); card.setLayoutParams(params);
-        card.setRadius(FinanceUi.dp(context,16)); card.setCardBackgroundColor(Color.WHITE); card.setStrokeWidth(FinanceUi.dp(context,1));
+        card.setRadius(FinanceUi.dp(context,16)); card.setCardBackgroundColor(context.getColor(R.color.neutral_50)); card.setStrokeWidth(FinanceUi.dp(context,1));
         card.setStrokeColor(context.getColor(income ? R.color.emerald_200 : R.color.red_200));
         LinearLayout column=FinanceUi.column(context); int padding=FinanceUi.dp(context,16); column.setPadding(padding,padding,padding,padding); card.addView(column);
         return new Holder(card,column);

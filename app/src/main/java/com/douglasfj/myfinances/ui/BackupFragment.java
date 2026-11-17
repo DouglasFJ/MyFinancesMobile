@@ -41,7 +41,7 @@ public class BackupFragment extends Fragment {
         FinanceUi.text(restore,"Importar um backup",21);
         FinanceUi.text(restore,"Selecione um arquivo .db exportado pelo MyFinances. O arquivo será validado antes de substituir o banco atual.",16);
         TextView warning=FinanceUi.text(restore,"Atenção: a importação apaga todos os dados atuais e os substitui pelos dados do arquivo. Exporte um backup antes de continuar.",16);
-        warning.setTextColor(android.graphics.Color.rgb(185,28,28));
+        warning.setTextColor(requireContext().getColor(com.douglasfj.myfinances.R.color.red_700));
         // .db files are often reported as generic binary files by document providers.
         importButton=FinanceUi.button(restore,"Importar banco SQLite (.db)",v -> importFile.launch(new String[]{"*/*"}));
         return scroll;

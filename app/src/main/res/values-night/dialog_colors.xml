@@ -1,6 +1,0 @@
-<resources>
-    <color name="dialog_action">#6EE7B7</color>
-    <color name="dialog_background">#262626</color>
-    <color name="dialog_text">#FAFAFA</color>
-    <color name="dialog_error">#FCA5A5</color>
-</resources>

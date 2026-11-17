@@ -18,8 +18,8 @@ public class LedgerActivity extends AppCompatActivity {
         super.onCreate(saved);
         FrameLayout root=new FrameLayout(this); root.setId(R.id.ledger_host); setContentView(root);
         if(getSupportActionBar()!=null) getSupportActionBar().hide();
-        WindowCompat.getInsetsController(getWindow(),root).setAppearanceLightStatusBars(true);
-        WindowCompat.getInsetsController(getWindow(),root).setAppearanceLightNavigationBars(true);
+        WindowCompat.getInsetsController(getWindow(),root).setAppearanceLightStatusBars(getResources().getBoolean(R.bool.finance_light_system_bars));
+        WindowCompat.getInsetsController(getWindow(),root).setAppearanceLightNavigationBars(getResources().getBoolean(R.bool.finance_light_system_bars));
         ViewCompat.setOnApplyWindowInsetsListener(root,(view,insets) -> {
             androidx.core.graphics.Insets bars=insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
             view.setPadding(bars.left,bars.top,bars.right,bars.bottom); return insets;

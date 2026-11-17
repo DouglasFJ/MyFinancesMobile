@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.activities.SelecionarMesActivity"
-            android:theme="@android:style/Theme.Material.Dialog.NoActionBar"/>
+            android:theme="@style/Theme.MyFinances"/>
         <activity android:name=".ui.ledger.LedgerActivity" android:exported="false"/>
     </application>
 

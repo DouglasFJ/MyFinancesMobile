@@ -2,6 +2,9 @@ package com.douglasfj.myfinances.ui;
 
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.*;
@@ -43,9 +46,7 @@ public abstract class FinancePageFragment extends Fragment {
 
         arrowLeft.setBounds(0, 0, tamnhoPx, tamnhoPx);
         previous.setCompoundDrawables(null, null, arrowLeft, null);
-        previous.setBackgroundTintList(
-                selectorBackground
-        );
+        roundArrowBackground(previous,selectorBackground.getDefaultColor(),true);
         previous.setContentDescription("Mês anterior");
         row.addView(previous,new LinearLayout.LayoutParams(FinanceUi.dp(requireContext(),48),-2));
 
@@ -62,9 +63,7 @@ public abstract class FinancePageFragment extends Fragment {
         arrowRight.setBounds(0, 0, tamnhoPx, tamnhoPx);
         next.setCompoundDrawables(arrowRight, null, null, null);
         next.setContentDescription("Próximo mês");
-        next.setBackgroundTintList(
-                selectorBackground
-        );
+        roundArrowBackground(next,selectorBackground.getDefaultColor(),false);
         next.setHeight(20);
         row.addView(next,new LinearLayout.LayoutParams(FinanceUi.dp(requireContext(),48),-2));
 
@@ -80,6 +79,23 @@ public abstract class FinancePageFragment extends Fragment {
         previous.setOnClickListener(v -> model.selectMonth(state.month.minusMonths(1)));
         next.setOnClickListener(v -> model.selectMonth(state.month.plusMonths(1)));
         current.setOnClickListener(v -> FinanceDialogs.pickMonth(this,state.month,model::selectMonth));
+    }
+    private void roundArrowBackground(Button button,int color,boolean pointsLeft) {
+        float radius=FinanceUi.dp(requireContext(),12);
+        GradientDrawable shape=new GradientDrawable();
+        shape.setColor(color);
+        shape.setCornerRadii(pointsLeft
+                ? new float[]{radius,radius,0,0,0,0,radius,radius}
+                : new float[]{0,0,radius,radius,radius,radius,0,0});
+        int foreground=FinanceUi.color(requireContext(),R.attr.financeSelectorForeground,
+                requireContext().getColor(R.color.neutral_800));
+        RippleDrawable ripple=new RippleDrawable(ColorStateList.valueOf(
+                androidx.core.graphics.ColorUtils.setAlphaComponent(foreground,40)),shape,null);
+        button.setBackgroundTintList(null);
+        button.setBackground(new InsetDrawable(ripple,FinanceUi.dp(requireContext(),3),
+                FinanceUi.dp(requireContext(),6),FinanceUi.dp(requireContext(),3),FinanceUi.dp(requireContext(),6)));
+        int horizontalPadding=FinanceUi.dp(requireContext(),16);
+        button.setPadding(horizontalPadding,0,horizontalPadding,0);
     }
     @Override public void onDestroyView() { super.onDestroyView(); content=null; }
 }

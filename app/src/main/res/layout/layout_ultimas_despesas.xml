@@ -10,6 +10,7 @@
 
     <TextView
         android:id="@+id/layout_ultima_despesa_mes"
+        android:textColor="@color/neutral_800"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/default_month_text"

@@ -2,28 +2,87 @@
     <!-- Base application theme. -->
     <style name="Theme.MyFinances" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimary">@color/emerald_700</item>
         <item name="colorPrimaryVariant">@color/neutral_100</item>
-        <item name="colorOnPrimary">@color/neutral_800</item>
+        <item name="colorOnPrimary">@color/neutral_50</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/emerald_500</item>
+        <item name="colorSecondary">@color/emerald_700</item>
         <item name="colorSecondaryVariant">@color/emerald_700</item>
-        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnSecondary">@color/neutral_50</item>
+        <item name="colorPrimaryContainer">@color/emerald_100</item>
+        <item name="colorOnPrimaryContainer">@color/emerald_950</item>
+        <item name="colorSecondaryContainer">@color/emerald_100</item>
+        <item name="colorOnSecondaryContainer">@color/emerald_950</item>
+        <item name="colorTertiary">@color/amber_700</item>
+        <item name="colorOnTertiary">@color/neutral_50</item>
+        <item name="colorTertiaryContainer">@color/amber_100</item>
+        <item name="colorOnTertiaryContainer">@color/amber_950</item>
+        <item name="android:colorBackground">@color/neutral_100</item>
+        <item name="colorOnBackground">@color/neutral_950</item>
+        <item name="colorSurface">@color/neutral_50</item>
+        <item name="colorOnSurface">@color/neutral_950</item>
+        <item name="colorSurfaceVariant">@color/neutral_100</item>
+        <item name="colorOnSurfaceVariant">@color/neutral_700</item>
+        <item name="colorSurfaceInverse">@color/neutral_800</item>
+        <item name="colorOnSurfaceInverse">@color/neutral_50</item>
+        <item name="colorPrimaryInverse">@color/emerald_200</item>
+        <item name="colorSurfaceContainerLowest">@color/neutral_50</item>
+        <item name="colorSurfaceContainerLow">@color/neutral_100</item>
+        <item name="colorSurfaceContainer">@color/neutral_100</item>
+        <item name="colorSurfaceContainerHigh">@color/neutral_200</item>
+        <item name="colorSurfaceContainerHighest">@color/neutral_200</item>
+        <item name="colorSurfaceBright">@color/neutral_50</item>
+        <item name="colorSurfaceDim">@color/neutral_200</item>
+        <item name="colorOutline">@color/neutral_500</item>
+        <item name="colorOutlineVariant">@color/neutral_300</item>
+        <item name="colorError">@color/red_700</item>
+        <item name="colorOnError">@color/neutral_50</item>
+        <item name="colorErrorContainer">@color/red_100</item>
+        <item name="colorOnErrorContainer">@color/red_950</item>
+        <item name="colorAccent">@color/emerald_700</item>
+        <item name="android:colorAccent">@color/emerald_700</item>
+        <item name="colorControlNormal">@color/neutral_700</item>
+        <item name="colorControlActivated">@color/emerald_700</item>
+        <item name="android:colorControlNormal">@color/neutral_700</item>
+        <item name="android:colorControlActivated">@color/emerald_700</item>
+        <item name="android:textColorPrimary">@color/neutral_950</item>
+        <item name="android:textColorSecondary">@color/neutral_700</item>
+        <item name="android:textColorHint">@color/neutral_600</item>
+        <item name="android:colorBackgroundFloating">@color/neutral_50</item>
+        <item name="android:windowBackground">@color/neutral_100</item>
+        <item name="android:navigationBarColor">@color/neutral_50</item>
+        <item name="financePageBackground">@color/neutral_100</item>
+        <item name="financeTextColor">@color/neutral_950</item>
+        <item name="financeHeadingColor">@color/neutral_950</item>
+        <item name="financeActionColor">@color/emerald_700</item>
+        <item name="financeSelectorBackground">@color/neutral_50</item>
+        <item name="financeSelectorForeground">@color/neutral_800</item>
+        <item name="android:windowLightStatusBar">@bool/finance_light_system_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/finance_light_system_bars</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="elevationOverlayEnabled">false</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="fontFamily">@font/nunito_semibold</item>
+        <item name="android:textViewStyle">@style/Widget.MyFinances.TextView</item>
         
         <item name="buttonStyle">@style/Widget.MyFinances.Button</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.MyFinances.AlertDialog</item>
     </style>
     
     <style name="Widget.MyFinances.Button" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/neutral_50</item>
         <item name="android:elevation">6dp</item>
         <item name="android:translationZ">2dp</item>
     </style>
 
+    <style name="Widget.MyFinances.TextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/neutral_950</item>
+    </style>
+
     <style name="ThemeOverlay.MyFinances.AlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@color/dialog_background</item>
         <item name="android:colorBackgroundFloating">@color/dialog_background</item>
         <item name="android:textColorPrimary">@color/dialog_text</item>
         <item name="android:textColorSecondary">@color/dialog_text</item>
