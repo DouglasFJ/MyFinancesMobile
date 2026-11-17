@@ -18,11 +18,11 @@
 
     <item
         android:id="@+id/navigation_invoice"
-        android:icon="@drawable/transaction"
+        android:icon="@drawable/icone_fatura"
         android:title="@string/title_invoices"/>
 
     <item
-        android:id="@+id/navigation_emergencial_box"
+        android:id="@+id/navigation_backup"
         android:icon="@drawable/backup"
         android:title="@string/title_emergencial_box"/>
 

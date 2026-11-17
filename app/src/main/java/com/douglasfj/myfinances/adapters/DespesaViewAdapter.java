@@ -20,6 +20,7 @@ import androidx.core.widget.ImageViewCompat;
 
 import com.douglasfj.myfinances.R;
 import com.douglasfj.myfinances.constantes.TipoDespesa;
+import com.douglasfj.myfinances.constantes.IndicadorTipoValor;
 import com.douglasfj.myfinances.models.ItemDepesa;
 import com.douglasfj.myfinances.models.entities.ValoresEntity;
 import com.douglasfj.myfinances.utils.ColorUtil;
@@ -54,7 +55,7 @@ public class DespesaViewAdapter extends ArrayAdapter<ValoresEntity> {
 
 
             // Faz as alterações
-            String colorName = tipoDespesa.getColorName();
+            String colorName = itemDepesa.indicadorTipoValor == IndicadorTipoValor.RECEITA ? "emerald" : tipoDespesa.getColorName();
 
             nomeDespesaView.setText(itemDepesa.nomeValor);
             nomeDespesaView.setTextColor(

@@ -56,9 +56,12 @@
                 app:layout_constraintTop_toBottomOf="@id/fragment_home_constraint_l_icon">
                 <Button android:id="@+id/fragment_home_add_income"
                     android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_marginRight="12dp"
+                    android:backgroundTint="@color/emerald_400"
                     android:layout_height="wrap_content" android:text="+ Receita"/>
                 <Button android:id="@+id/fragment_home_add_expense"
                     android:layout_width="0dp" android:layout_weight="1"
+                    android:backgroundTint="@color/red_400"
                     android:layout_height="wrap_content" android:text="+ Despesa"/>
             </LinearLayout>
 
@@ -204,19 +207,9 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <ImageButton
-                            android:layout_width="23dp"
-                            android:layout_height="16dp"
-                            android:background="@color/transparent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/arrowright"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/neutral_800" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-<GridView
+                    <GridView
                         android:id="@+id/fragment_home_lista_falta_pagar"
                         android:layout_width="match_parent"
                         android:layout_height="116dp"

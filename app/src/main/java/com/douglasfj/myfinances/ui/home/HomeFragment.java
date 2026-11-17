@@ -46,7 +46,7 @@ public class HomeFragment extends Fragment {
         binding.fragmentHomeMesSelection.setText(FinanceUi.month(state.month));
         pending.clear(); recent.clear();
         List<ValoresEntity> pendingValues=new ArrayList<>(),recentValues=new ArrayList<>();
-        for(Entry e:state.entries) {
+        for(Entry e:state.expenses()) {
             if(e.value.indicadorTipoValor!=IndicadorTipoValor.RECEITA) {
                 if(e.paid!=IndicadorDespesaPaga.PAGA) { pending.add(e); pendingValues.add(e.value); }
                 if(recent.size()<10) { recent.add(e); recentValues.add(e.value); }

@@ -27,7 +27,7 @@ public class BackupImportUiTest {
         Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
         int previous=MyFinancesDatabase.getDatabase(context).valoresDAO().getAll().size();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.navigation_emergencial_box)).perform(click());
+            onView(withId(R.id.navigation_backup)).perform(click());
             onView(withText("Importar banco SQLite (.db)")).perform(scrollTo()).check(matches(isDisplayed()));
             scenario.onActivity(activity -> ImportConfirmationDialog.forFile(Uri.parse("content://test/backup.db"),"backup.db")
                     .show(activity.getSupportFragmentManager(),"confirm-database-import"));

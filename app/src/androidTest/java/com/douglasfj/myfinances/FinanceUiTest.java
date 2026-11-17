@@ -73,7 +73,7 @@ public class FinanceUiTest {
                 onView(withText("Cadastrar cartão")).check(matches(isDisplayed()));
                 onView(withId(R.id.navigation_invoice)).perform(click());
                 onView(withText("Selecione o mês e o cartão para consultar a fatura.")).check(matches(isDisplayed()));
-                onView(withId(R.id.navigation_emergencial_box)).perform(click());
+                onView(withId(R.id.navigation_backup)).perform(click());
                 onView(withText("Exportar banco SQLite")).check(matches(isDisplayed()));
                 onView(withId(R.id.navigation_home)).perform(click());
                 onView(withId(R.id.fragment_home_add_income)).check(matches(isDisplayed()));

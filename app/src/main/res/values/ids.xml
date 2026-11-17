@@ -1,4 +1,11 @@
 <resources>
     <item name="invoice_card_selector" type="id"/>
     <item name="invoice_total" type="id"/>
+    <item name="ledger_host" type="id"/>
+    <item name="ledger_search" type="id"/>
+    <item name="ledger_row_name" type="id"/>
+    <item name="ledger_month" type="id"/>
+    <item name="ledger_status" type="id"/>
+    <item name="ledger_list" type="id"/>
+    <item name="ledger_more" type="id"/>
 </resources>

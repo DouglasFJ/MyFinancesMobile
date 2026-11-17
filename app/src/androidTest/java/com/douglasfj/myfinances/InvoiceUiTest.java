@@ -48,6 +48,10 @@ public class InvoiceUiTest {
                 onView(withId(R.id.invoice_card_selector)).perform(click());
                 onData(is(cardA)).perform(click());
                 onView(withId(R.id.invoice_total)).check(matches(withText(Money.format(10000))));
+                onView(withText("Marcar fatura paga")).perform(scrollTo(),click());
+                onIdle();
+                scenario.onActivity(activity -> org.junit.Assert.assertTrue(
+                        new ViewModelProvider(activity).get(FinanceViewModel.class).state().getValue().invoice(idA).isPaid()));
                 onView(withText(containsString("Parcela 1 de 1"))).perform(scrollTo()).check(matches(isDisplayed()));
                 onView(withText(purchaseA)).check(matches(isDisplayed()));
                 onView(withId(R.id.invoice_card_selector)).perform(scrollTo(),click());

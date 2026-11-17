@@ -1,0 +1,9 @@
+<resources>
+    <attr name="financePageBackground" format="color"/>
+    <attr name="financeTextColor" format="color"/>
+    <attr name="financeHeadingColor" format="color"/>
+    <attr name="financeCardStroke" format="color"/>
+    <attr name="financeActionColor" format="color"/>
+    <attr name="financeSelectorBackground" format="color"/>
+    <attr name="financeSelectorForeground" format="color"/>
+</resources>

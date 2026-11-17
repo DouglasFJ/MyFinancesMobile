@@ -16,6 +16,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class FinanceDialogs {
+    public interface EntrySaver {
+        void save(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid);
+    }
+    public interface PurchaseSaver {
+        void save(Long id, long card, String name, long cents, int count, YearMonth first);
+    }
     private FinanceDialogs() {}
     private static FinanceViewModel model(Fragment f) { return new ViewModelProvider(f.requireActivity()).get(FinanceViewModel.class); }
     public static void pickMonth(Fragment fragment, YearMonth initial, Consumer<YearMonth> selected) {
@@ -64,11 +70,15 @@ public final class FinanceDialogs {
         return value;
     }
     public static void entry(Fragment f, Entry existing, boolean income) {
-        FinanceViewModel vm = model(f); LinearLayout form = form(f);
+        FinanceViewModel vm = model(f);
+        entry(f,existing,income,vm.month(),vm::saveEntry);
+    }
+    public static void entry(Fragment f, Entry existing, boolean income, YearMonth initial, EntrySaver save) {
+        LinearLayout form = form(f);
         ValoresEntity value = existing == null ? null : existing.value;
         EditText name = field(form,"Nome do lançamento", value == null ? "" : value.nomeValor, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         EditText amount = field(form,"Valor em reais", value == null ? "" : Money.input(value.valorReais), InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        YearMonth[] month = {vm.month()};
+        YearMonth[] month = {initial};
         Button monthButton = FinanceUi.button(form,FinanceUi.month(month[0]),v -> {});
         monthButton.setOnClickListener(v -> pickMonth(f,month[0],selected -> {month[0]=selected; monthButton.setText(FinanceUi.month(selected));}));
         if (existing != null) monthButton.setEnabled(false);
@@ -77,9 +87,14 @@ public final class FinanceDialogs {
         CheckBox paid = check(form,"Já foi paga", existing != null && existing.paid == IndicadorDespesaPaga.PAGA); paid.setVisibility(income ? android.view.View.GONE : android.view.View.VISIBLE);
         label(form,"Valores fixos repetem a partir deste mês. Alterações valem para este mês e os seguintes; meses anteriores são preservados.",13);
         dialog(f,existing == null ? (income ? "Nova receita" : "Nova despesa") : "Editar lançamento",form,() ->
-                vm.saveEntry(value == null ? null : value.idValor,month[0],required(name),Money.parse(amount.getText().toString()),income,tax.isChecked(),fixed.isChecked(),paid.isChecked()));
+                save.save(value == null ? null : value.idValor,month[0],required(name),Money.parse(amount.getText().toString()),income,tax.isChecked(),fixed.isChecked(),paid.isChecked()));
     }
     public static void entryActions(Fragment f, Entry entry) {
+        if(entry.invoiceCardId!=null) {
+            invoiceActions(f,entry.cardName,entry.value.valorReais,entry.paid==IndicadorDespesaPaga.PAGA,
+                    () -> model(f).payInvoice(entry.invoiceCardId,entry.invoiceMonth,entry.paid!=IndicadorDespesaPaga.PAGA));
+            return;
+        }
         FinanceViewModel vm = model(f); boolean income = entry.value.indicadorTipoValor == IndicadorTipoValor.RECEITA;
         boolean card = entry.value.idCompraCartao != null;
         if (card) {
@@ -98,6 +113,12 @@ public final class FinanceDialogs {
                     () -> vm.deleteEntry(entry.value.idValor,vm.month()));
         }).show();
     }
+    public static void invoiceActions(Fragment f,String card,double total,boolean paid,Runnable changePayment) {
+        new AlertDialog.Builder(f.requireContext()).setTitle("Fatura " + card)
+                .setMessage(Money.format(Money.cents(total)) + "\n" + (paid ? "Paga" : "Pendente") +
+                        "\n\nA alteração será aplicada a todas as parcelas deste cartão no mês selecionado.")
+                .setNegativeButton("Fechar",null).setPositiveButton(paid ? "Marcar fatura pendente" : "Marcar fatura paga",(d,w) -> changePayment.run()).show();
+    }
     public static void confirm(Fragment f, String title, String message, Runnable action) {
         new AlertDialog.Builder(f.requireContext()).setTitle(title).setMessage(message).setNegativeButton("Cancelar",null)
                 .setPositiveButton("Confirmar",(d,w) -> action.run()).show();
@@ -109,7 +130,9 @@ public final class FinanceDialogs {
     public static void purchase(Fragment f, Purchase existing, Long preferredCard) {
         FinanceViewModel vm = model(f); State state = vm.state().getValue();
         if (state == null || state.cards.isEmpty()) { card(f,null); return; }
-        List<CartoesEntity> cards = state.cards;
+        purchase(f,existing,preferredCard,state.cards,vm.month(),vm::savePurchase);
+    }
+    public static void purchase(Fragment f, Purchase existing, Long preferredCard,List<CartoesEntity> cards,YearMonth initial,PurchaseSaver save) {
         ComprasCartoesEntity purchase = existing == null ? null : existing.purchase;
         LinearLayout form = form(f);
         EditText name = field(form,"Nome da compra",purchase == null ? "" : purchase.nomeCompra,InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
@@ -121,7 +144,7 @@ public final class FinanceDialogs {
         for(int i=0;i<cards.size();i++) { labels[i]=cards.get(i).nomeCartao; if(cards.get(i).idCartao==target) selection=i; }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(f.requireContext(),android.R.layout.simple_spinner_dropdown_item,labels);
         spinner.setAdapter(adapter); spinner.setSelection(selection); spinner.setContentDescription("Cartão da compra"); form.addView(spinner);
-        YearMonth[] first = {purchase == null || purchase.dataPrimeiraParcela == null ? vm.month() : YearMonth.from(purchase.dataPrimeiraParcela.toInstant().atZone(ZoneId.systemDefault()))};
+        YearMonth[] first = {purchase == null || purchase.dataPrimeiraParcela == null ? initial : YearMonth.from(purchase.dataPrimeiraParcela.toInstant().atZone(ZoneId.systemDefault()))};
         label(form,"Mês da primeira parcela",14);
         Button month = FinanceUi.button(form,FinanceUi.month(first[0]),v -> {});
         month.setOnClickListener(v -> pickMonth(f,first[0],selected -> {first[0]=selected; month.setText(FinanceUi.month(selected));}));
@@ -131,7 +154,7 @@ public final class FinanceDialogs {
             int count;
             try { count=Integer.parseInt(installments.getText().toString()); } catch(NumberFormatException e) { throw new IllegalArgumentException("Informe de 1 a 120 parcelas."); }
             long cents = Money.parse(amount.getText().toString()); Money.split(cents,count);
-            vm.savePurchase(purchase == null ? null : purchase.idCompraCartao,cards.get(spinner.getSelectedItemPosition()).idCartao,required(name),cents,count,first[0]);
+            save.save(purchase == null ? null : purchase.idCompraCartao,cards.get(spinner.getSelectedItemPosition()).idCartao,required(name),cents,count,first[0]);
         });
     }
 }

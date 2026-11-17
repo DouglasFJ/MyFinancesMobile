@@ -11,6 +11,10 @@ public interface FinanceRepository {
     void saveEntry(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid);
     void deleteEntry(long id, YearMonth fromMonth);
     void setPaid(long linkId, boolean paid);
+    void setInvoicePaid(long cardId, YearMonth month, boolean paid);
+    LedgerPage ledger(boolean income, String search, YearMonth month, int offset);
+    java.util.List<com.douglasfj.myfinances.models.entities.CartoesEntity> cards();
+    java.util.List<com.douglasfj.myfinances.data.FinanceModels.Purchase> invoicePurchases(long card,YearMonth month);
     void saveCard(Long id, String name);
     void deleteCard(long id);
     void savePurchase(Long id, long cardId, String name, long cents, int installments, YearMonth firstMonth);

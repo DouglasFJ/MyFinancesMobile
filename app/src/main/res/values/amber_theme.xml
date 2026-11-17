@@ -1,0 +1,30 @@
+<resources>
+    <color name="amber_dialog_action">@color/amber_800</color>
+
+    <style name="ThemeOverlay.MyFinances.Amber" parent="">
+        <item name="financePageBackground">@color/amber_50</item>
+        <item name="financeTextColor">@color/amber_950</item>
+        <item name="financeHeadingColor">@color/amber_800</item>
+        <item name="financeCardStroke">@color/amber_200</item>
+        <item name="financeActionColor">@color/amber_700</item>
+        <item name="financeSelectorBackground">@color/amber_100</item>
+        <item name="financeSelectorForeground">@color/amber_900</item>
+        <item name="colorPrimary">@color/amber_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/amber_700</item>
+        <item name="colorAccent">@color/amber_700</item>
+        <item name="colorControlActivated">@color/amber_700</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.MyFinances.AlertDialog.Amber</item>
+    </style>
+
+    <style name="ThemeOverlay.MyFinances.AlertDialog.Amber" parent="ThemeOverlay.MyFinances.AlertDialog">
+        <item name="colorAccent">@color/amber_dialog_action</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyFinances.DialogButton.Amber</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyFinances.DialogButton.Amber</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.MyFinances.DialogButton.Amber</item>
+    </style>
+
+    <style name="Widget.MyFinances.DialogButton.Amber" parent="Widget.MyFinances.DialogButton">
+        <item name="android:textColor">@color/amber_dialog_action</item>
+    </style>
+</resources>

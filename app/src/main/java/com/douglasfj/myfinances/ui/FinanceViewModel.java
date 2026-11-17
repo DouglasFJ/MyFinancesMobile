@@ -68,6 +68,9 @@ public class FinanceViewModel extends AndroidViewModel {
     }
     public void deleteEntry(long id, YearMonth month) { run(() -> repository.deleteEntry(id, month), "Lançamento removido."); }
     public void paid(long id, boolean paid) { run(() -> repository.setPaid(id, paid), "Pagamento atualizado."); }
+    public void payInvoice(long card, YearMonth month, boolean paid) {
+        run(() -> repository.setInvoicePaid(card,month,paid), "Pagamento da fatura atualizado.");
+    }
     public void saveCard(Long id, String name) { run(() -> repository.saveCard(id, name), "Cartão salvo."); }
     public void deleteCard(long id) { run(() -> repository.deleteCard(id), "Cartão removido."); }
     public void savePurchase(Long id, long card, String name, long cents, int count, YearMonth first) {

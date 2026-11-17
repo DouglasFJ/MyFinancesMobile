@@ -24,7 +24,14 @@ public class MainActivity extends AppCompatActivity {
             androidx.core.graphics.Insets bars=insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
             view.setPadding(bars.left,bars.top,bars.right,bars.bottom); return insets;
         });
-        NavigationUI.setupWithNavController(binding.navView,Navigation.findNavController(this,R.id.nav_host_fragment_activity_main));
+        androidx.navigation.NavController navigation=Navigation.findNavController(this,R.id.nav_host_fragment_activity_main);
+        NavigationUI.setupWithNavController(binding.navView,navigation);
+        android.content.res.ColorStateList defaultIndicator=binding.navView.getItemActiveIndicatorColor();
+        navigation.addOnDestinationChangedListener((controller,destination,arguments) -> {
+            boolean amber=destination.getId()==R.id.navigation_card || destination.getId()==R.id.navigation_invoice;
+            binding.navView.setItemActiveIndicatorColor(amber
+                    ? android.content.res.ColorStateList.valueOf(getColor(R.color.amber_200)) : defaultIndicator);
+        });
         FinanceViewModel model=new ViewModelProvider(this).get(FinanceViewModel.class);
         model.importing().observe(this,importing -> {
             if (getSupportFragmentManager().isStateSaved()) return;

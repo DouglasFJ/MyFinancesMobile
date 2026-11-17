@@ -29,7 +29,7 @@
         android:label="@string/title_invoices"/>
 
     <fragment
-        android:id="@+id/navigation_emergencial_box"
+        android:id="@+id/navigation_backup"
         android:name="com.douglasfj.myfinances.ui.BackupFragment"
         android:label="@string/title_emergencial_box"
         tools:layout="@layout/fragment_notifications" />

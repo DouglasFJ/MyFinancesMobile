@@ -107,6 +107,21 @@ public final class RoomFinanceRepository implements FinanceRepository {
         });
     }
     @Override public void setPaid(long linkId, boolean paid) { dao.setPaid(linkId, paid ? 1 : 0); }
+    @Override public void setInvoicePaid(long cardId, YearMonth month, boolean paid) {
+        db.runInTransaction(() -> dao.setInvoicePaid(cardId,month.getMonthValue(),month.getYear(),paid ? 1 : 0));
+    }
+    @Override public LedgerPage ledger(boolean income, String search, YearMonth month, int offset) {
+        return db.runInTransaction(() -> {
+            List<LedgerRow> rows=dao.ledger(LedgerQuery.page(income,search,month,offset));
+            boolean more=rows.size()>LedgerPage.SIZE;
+            if(more) rows=new java.util.ArrayList<>(rows.subList(0,LedgerPage.SIZE));
+            return new LedgerPage(rows,dao.months(),more);
+        });
+    }
+    @Override public List<CartoesEntity> cards() { return dao.cards(); }
+    @Override public List<FinanceModels.Purchase> invoicePurchases(long card,YearMonth month) {
+        return dao.invoicePurchases(card,month.getMonthValue(),month.getYear());
+    }
     @Override public void saveCard(Long id, String title) {
         String validName = name(title);
         db.runInTransaction(() -> {

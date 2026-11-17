@@ -34,12 +34,16 @@ public final class CardInvoice {
     public final List<Line> lines;
     public final long totalCents;
     public final long pendingCents;
+    public final int unpaidCount;
 
-    private CardInvoice(List<Line> lines, long total, long pending) {
+    private CardInvoice(List<Line> lines, long total, long pending, int unpaidCount) {
         this.lines = Collections.unmodifiableList(lines);
         totalCents = total;
         pendingCents = pending;
+        this.unpaidCount = unpaidCount;
     }
+
+    public boolean isPaid() { return !lines.isEmpty() && unpaidCount == 0; }
 
     public static CardInvoice calculate(State state, long cardId) {
         Map<Long, Purchase> purchases = new HashMap<>();
@@ -48,14 +52,15 @@ public final class CardInvoice {
         }
         List<Line> lines = new ArrayList<>();
         long total = 0, pending = 0;
+        int unpaidCount = 0;
         for (Entry entry : state.entries) {
             Purchase purchase = purchases.get(entry.value.idCompraCartao);
             if (purchase == null) continue;
             Line line = new Line(entry, purchase, state.month);
             lines.add(line);
             total += line.installmentCents;
-            if (entry.paid != IndicadorDespesaPaga.PAGA) pending += line.installmentCents;
+            if (entry.paid != IndicadorDespesaPaga.PAGA) { pending += line.installmentCents; unpaidCount++; }
         }
-        return new CardInvoice(lines, total, pending);
+        return new CardInvoice(lines, total, pending, unpaidCount);
     }
 }

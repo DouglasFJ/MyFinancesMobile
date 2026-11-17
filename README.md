@@ -6,6 +6,7 @@ Aplicativo Android em Java para controle financeiro offline. Os dados são armaz
 
 - Início: receitas, despesas, saldo previsto, despesas pendentes e últimas despesas do mês.
 - Mês: seleção de mês/ano, histórico mensal, previsão de saldo acumulado e cadastro, edição e exclusão de receitas, despesas e impostos.
+- Visualizar receitas / Visualizar despesas: páginas sem barra de navegação inferior, busca por nome, seletor de mês/ano com opção inicial Todos os meses e carregamento de 30 registros por vez pelo botão Ver mais. A busca e o filtro são aplicados no SQLite antes da paginação; as linhas são recicladas durante a rolagem. Receitas usam a paleta Emerald e despesas a paleta Red do Figma.
 - Lançamentos fixos: repetição mensal a partir do mês escolhido. Edições e exclusões afetam esse mês e os seguintes, preservando os anteriores. O pagamento é independente em cada mês.
 - Cartões: cadastro, renomeação, exclusão de cartões sem compras e cadastro, edição e exclusão de compras com até 120 parcelas. A fatura pode ser consultada por cartão e mês.
 - Faturas: página de consulta por mês e cartão, com total da fatura, valores pagos e pendentes e detalhes de cada compra (valor da parcela, valor total do produto, número da parcela e quantidade de parcelas).
@@ -15,6 +16,10 @@ Aplicativo Android em Java para controle financeiro offline. Os dados são armaz
 O saldo é **previsto** e acumulado: saldo anterior + receitas do mês − todas as despesas do mês, inclusive impostos e parcelas, independentemente do pagamento. O resultado isolado do mês (receitas − despesas) também aparece nos painéis. Não representa saldo bancário conciliado. Impostos já estão incluídos no total de despesas.
 
 O saldo anterior é calculado em memória a partir de todos os meses anteriores cadastrados, começando em zero no primeiro mês. Ele não é gravado como receita nem como lançamento fixo. Alterar ou excluir um lançamento histórico recalcula os saldos seguintes, inclusive previsões futuras e saldos negativos. Uma fatura é a soma das parcelas do cartão naquele mês; consultá-la não cria outra despesa.
+
+Nas listas de despesas e nos painéis, as parcelas são agrupadas em uma única fatura por cartão e mês. A coluna nullable `VALORES.ID_COMPRA_CARTAO`, já existente, continua preenchida apenas nas parcelas; lançamentos avulsos mantêm esse campo nulo. O pagamento da fatura atualiza em uma transação os pagamentos de todas as parcelas daquele cartão no mês, sem afetar outros cartões ou meses. Se qualquer parcela estiver pendente, mesmo com valor zero, a fatura fica pendente. As parcelas continuam disponíveis nos detalhes da fatura.
+
+Editar ou excluir uma fatura na lista abre a seleção das compras que a compõem. A edição recalcula a compra; a exclusão pede confirmação e remove essa compra com todas as suas parcelas. Não se altera o total agregado da fatura como se fosse uma despesa avulsa, nem se cria um lançamento adicional que duplicaria as despesas.
 
 Compras no cartão recebem o **valor total**. As parcelas são distribuídas em meses consecutivos, com eventuais centavos nas primeiras parcelas. Editar uma compra recalcula todas as parcelas e redefine seus pagamentos como pendentes. A compra não deve ser registrada novamente como uma despesa avulsa.
 

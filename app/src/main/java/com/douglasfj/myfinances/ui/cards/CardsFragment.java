@@ -15,7 +15,7 @@ import com.douglasfj.myfinances.constantes.IndicadorDespesaPaga;
 import java.time.YearMonth;
 import java.time.ZoneId;
 
-public class CardsFragment extends FinancePageFragment {
+public class CardsFragment extends AmberFinancePageFragment {
     private Long selectedCard;
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved); if(saved!=null && saved.containsKey("card")) selectedCard=saved.getLong("card");
@@ -33,7 +33,8 @@ public class CardsFragment extends FinancePageFragment {
         for(int i=0;i<names.length;i++) { names[i]=state.cards.get(i).nomeCartao; if(state.cards.get(i).idCartao.equals(selectedCard)) position=i; }
         CartoesEntity card=state.cards.get(position); selectedCard=card.idCartao;
         Spinner spinner=new Spinner(requireContext()); spinner.setContentDescription("Cartão selecionado");
-        spinner.setAdapter(new ArrayAdapter<>(requireContext(),android.R.layout.simple_spinner_dropdown_item,names));
+        spinner.setAdapter(FinanceUi.selectorAdapter(requireContext(),names));
+        spinner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(requireContext().getColor(R.color.amber_700)));
         spinner.setSelection(position); content.addView(spinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -51,6 +52,11 @@ public class CardsFragment extends FinancePageFragment {
         CardInvoice bill=state.invoice(card.idCartao);
         LinearLayout invoice=FinanceUi.card(content); FinanceUi.text(invoice,"Fatura do mês",18);
         FinanceUi.text(invoice,Money.format(bill.totalCents),28); FinanceUi.text(invoice,"Pendente: " + Money.format(bill.pendingCents),16);
+        if(!bill.lines.isEmpty()) {
+            FinanceUi.text(invoice,bill.isPaid() ? "Fatura paga" : "Fatura pendente",16);
+            FinanceUi.button(invoice,bill.isPaid() ? "Marcar fatura pendente" : "Marcar fatura paga",
+                    v -> model.payInvoice(card.idCartao,state.month,!bill.isPaid()));
+        }
         FinanceUi.button(invoice,"Consultar fatura detalhada",v -> {
             Bundle args=new Bundle(); args.putLong("card",card.idCartao);
             NavHostFragment.findNavController(this).navigate(R.id.navigation_invoice,args);

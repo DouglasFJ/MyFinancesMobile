@@ -12,7 +12,7 @@ import com.douglasfj.myfinances.data.FinanceModels.State;
 import com.douglasfj.myfinances.constantes.IndicadorDespesaPaga;
 
 /** Dedicated readout of a card's bill, separate from card/purchase management. */
-public class InvoiceFragment extends FinancePageFragment {
+public class InvoiceFragment extends AmberFinancePageFragment {
     private Long selectedCard;
 
     @Override public void onCreate(Bundle saved) {
@@ -48,7 +48,8 @@ public class InvoiceFragment extends FinancePageFragment {
         Spinner selector = new Spinner(requireContext());
         selector.setId(R.id.invoice_card_selector);
         selector.setContentDescription("Cartão da fatura");
-        selector.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, labels));
+        selector.setAdapter(FinanceUi.selectorAdapter(requireContext(),labels));
+        selector.setBackgroundTintList(android.content.res.ColorStateList.valueOf(requireContext().getColor(R.color.amber_700)));
         selector.setSelection(selection);
         content.addView(selector, new LinearLayout.LayoutParams(-1, FinanceUi.dp(requireContext(), 56)));
         selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -71,6 +72,12 @@ public class InvoiceFragment extends FinancePageFragment {
         FinanceUi.text(total, "Pendente: " + Money.format(invoice.pendingCents) +
                 "\nPago: " + Money.format(invoice.totalCents - invoice.pendingCents), 16);
         FinanceUi.text(total, "As parcelas desta fatura já estão incluídas nas despesas do mês.", 13);
+        if(!invoice.lines.isEmpty()) {
+            FinanceUi.text(total,invoice.isPaid() ? "Fatura paga" : "Fatura pendente",16);
+            final long cardId=selectedCard;
+            FinanceUi.button(total,invoice.isPaid() ? "Marcar fatura pendente" : "Marcar fatura paga",
+                    v -> model.payInvoice(cardId,state.month,!invoice.isPaid()));
+        }
         FinanceUi.text(content, "Itens da fatura", 22);
         if (invoice.lines.isEmpty()) FinanceUi.text(content, "Nenhuma parcela para este cartão neste mês.", 16);
         for (CardInvoice.Line line : invoice.lines) {

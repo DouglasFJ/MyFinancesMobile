@@ -7,6 +7,14 @@ import java.util.List;
 
 @Dao
 public interface FinanceiroDAO {
+    @RawQuery List<com.douglasfj.myfinances.data.LedgerRow> ledger(androidx.sqlite.db.SupportSQLiteQuery query);
+    @Query("UPDATE MESES_VALORES SET INDICADOR_DESPESA_PAGA=:paid WHERE ID_MES IN (SELECT ID_MES FROM MESES WHERE MES=:month AND ANO=:year) " +
+            "AND ID_VALOR IN (SELECT V.ID_VALOR FROM VALORES V JOIN COMPRAS_CARTOES P ON P.ID_COMPRA_CARTAO=V.ID_COMPRA_CARTAO WHERE P.ID_CARTAO=:card)")
+    void setInvoicePaid(long card, int month, int year, int paid);
+    @Query("SELECT DISTINCT P.*,C.NOME_CARTAO AS cardName FROM COMPRAS_CARTOES P JOIN CARTOES C ON C.ID_CARTAO=P.ID_CARTAO " +
+            "JOIN VALORES V ON V.ID_COMPRA_CARTAO=P.ID_COMPRA_CARTAO JOIN MESES_VALORES MV ON MV.ID_VALOR=V.ID_VALOR " +
+            "JOIN MESES M ON M.ID_MES=MV.ID_MES WHERE P.ID_CARTAO=:card AND M.MES=:month AND M.ANO=:year ORDER BY P.ID_COMPRA_CARTAO DESC")
+    List<Purchase> invoicePurchases(long card,int month,int year);
     @Insert long insertMonth(MesesEntity month);
     @Insert long insertValue(ValoresEntity value);
     @Insert long insertCard(CartoesEntity card);
