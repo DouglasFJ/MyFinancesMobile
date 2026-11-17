@@ -56,8 +56,10 @@ public class HomeFragment extends Fragment {
         binding.fragmentHomeSaldoConta.setText(Money.format(summary.closingBalanceCents()));
         binding.fragmentHomeSaldoEntrada.setText(Money.format(summary.incomeCents()));
         binding.fragmentHomeSaldoSaida.setText(Money.format(summary.expensesCents()));
-        binding.fragmentHomeCarryover.setText("Saldo anterior: " + Money.format(summary.openingBalanceCents) +
-                "\nResultado do mês: " + Money.format(summary.netCents()));
+        binding.fragmentHomeSaldoAnterior.setText(Money.format(summary.openingBalanceCents));
+        binding.fragmentHomeResultadoMes.setText(Money.format(summary.netCents()));
+
+
         pendingAdapter.clear(); pendingAdapter.addAll(pendingValues);
         recentAdapter.clear(); recentAdapter.addAll(recentValues);
         binding.fragmentHomePendingEmpty.setVisibility(pending.isEmpty() ? View.VISIBLE : View.GONE);

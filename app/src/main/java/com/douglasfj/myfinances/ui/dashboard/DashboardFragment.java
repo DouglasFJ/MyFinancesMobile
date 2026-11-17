@@ -1,5 +1,7 @@
 package com.douglasfj.myfinances.ui.dashboard;
 
+import android.content.res.ColorStateList;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.GridLayout;
 import android.view.View;
@@ -18,6 +20,8 @@ import com.douglasfj.myfinances.constantes.*;
 import java.time.YearMonth;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
+
 import com.douglasfj.myfinances.ui.ledger.LedgerActivity;
 
 public class DashboardFragment extends FinancePageFragment {
@@ -29,21 +33,59 @@ public class DashboardFragment extends FinancePageFragment {
         FinanceUi.text(content,"Meses",26); monthSelector(content,state);
         Summary selected = state.summary();
         LinearLayout totals=FinanceUi.card(content);
-        FinanceUi.text(totals,"Saldo acumulado: " + Money.format(selected.closingBalanceCents()),22);
-        FinanceUi.text(totals,"Saldo mês anterior: " + Money.format(selected.openingBalanceCents) +
-                "\nReceitas do mês: " + Money.format(selected.incomeCents()) +
-                "\nTotal receitas: " + Money.format(selected.availableCents()) +
-                "\n\nDespesas: " + Money.format(selected.expensesCents()) +
-                "\nImpostos: " + Money.format(Money.cents(selected.taxes)),15);
+
+        LinearLayout.LayoutParams layoutResumoMes = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        GridLayout gridLayoutResumoMes = new GridLayout(requireContext());
+        gridLayoutResumoMes.setColumnCount(2);
+        gridLayoutResumoMes.setLayoutParams(layoutResumoMes);
+
+        FinanceUi.text(gridLayoutResumoMes, "Saldo do mês:", 18);
+        FinanceUi.sensitiveText(gridLayoutResumoMes, Money.format(selected.closingBalanceCents()), 18);;
+
+        FinanceUi.text(gridLayoutResumoMes, "Saldo mês anterior:", 18).setPadding(0, 0, 20, 0);
+        FinanceUi.sensitiveText(gridLayoutResumoMes, Money.format(selected.openingBalanceCents), 18);
+
+        FinanceUi.textWithColor(gridLayoutResumoMes, "Receita do mês:", 18, R.color.emerald_800);
+        FinanceUi.sensitiveTextWithColor(gridLayoutResumoMes, Money.format(selected.incomeCents()), 18, R.color.emerald_800);
+
+        FinanceUi.textWithColor(gridLayoutResumoMes, "Total receitas:", 18, R.color.emerald_800);
+        FinanceUi.sensitiveTextWithColor(gridLayoutResumoMes, Money.format(selected.availableCents()), 18, R.color.emerald_800);
+
+        FinanceUi.textWithColor(gridLayoutResumoMes, "Despesas do mês:", 18, R.color.red_800);
+        FinanceUi.sensitiveTextWithColor(gridLayoutResumoMes, Money.format(selected.expensesCents()), 18, R.color.red_800);
+
+        FinanceUi.textWithColor(gridLayoutResumoMes, "Impostos:", 18, R.color.red_800);
+        FinanceUi.sensitiveTextWithColor(gridLayoutResumoMes, Money.format(Money.cents(selected.taxes)), 18, R.color.red_800);
+
+        totals.addView(gridLayoutResumoMes);
+
+        LinearLayout.LayoutParams paramsButtons = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        paramsButtons.weight = 1f;
+        paramsButtons.setMargins(6, 6, 6, 6);
+
+        LinearLayout lineButtonsReceitas = FinanceUi.line(content);
+
+        FinanceUi.button(lineButtonsReceitas,"Adicionar receita",
+                v -> FinanceDialogs.entry(this,null,true),
+                paramsButtons
+        );
+        FinanceUi.button(lineButtonsReceitas,"Visualizar receitas",
+                v -> ledger.launch(LedgerActivity.intent(requireContext(),true)),
+                paramsButtons
+        );
+
+        LinearLayout lineButtonsDespesas = FinanceUi.line(content);
+
+        FinanceUi.button(lineButtonsDespesas,"Adicionar despesa",
+                v -> FinanceDialogs.entry(this,null,false),
+                paramsButtons
+                ).setBackgroundTintList(android.content.res.ColorStateList.valueOf(requireContext().getColor(com.douglasfj.myfinances.R.color.red_700)));
+        FinanceUi.button(lineButtonsDespesas,"Visualizar despesas",
+                v -> ledger.launch(LedgerActivity.intent(requireContext(),false)),
+                paramsButtons
+                ).setBackgroundTintList(android.content.res.ColorStateList.valueOf(requireContext().getColor(com.douglasfj.myfinances.R.color.red_700)));
 
 
-        FinanceUi.button(content,"Adicionar receita",v -> FinanceDialogs.entry(this,null,true));
-        FinanceUi.button(content,"Visualizar receitas",v -> ledger.launch(LedgerActivity.intent(requireContext(),true)));
-
-        FinanceUi.button(content,"Adicionar despesa",v -> FinanceDialogs.entry(this,null,false))
-                .setBackgroundTintList(android.content.res.ColorStateList.valueOf(requireContext().getColor(com.douglasfj.myfinances.R.color.red_700)));
-        FinanceUi.button(content,"Visualizar despesas",v -> ledger.launch(LedgerActivity.intent(requireContext(),false)))
-                .setBackgroundTintList(android.content.res.ColorStateList.valueOf(requireContext().getColor(com.douglasfj.myfinances.R.color.red_700)));
         FinanceUi.text(content,"Toque em um lançamento para editar, excluir ou registrar o pagamento.",13);
 
         for(int group=0;group<2;group++) {
@@ -86,11 +128,29 @@ public class DashboardFragment extends FinancePageFragment {
             YearMonth month=YearMonth.of(s.month.ano,s.month.mes);
             if(month.isBefore(firstVisibleMonth) || month.isAfter(lastVisibleMonth)) continue;
             LinearLayout row=FinanceUi.card(content);
+            row.setBackgroundColor(ContextCompat.getColor(content.getContext(), R.color.amber_50));
+
             FinanceUi.text(row,FinanceUi.month(month),18);
-            FinanceUi.text(row,"Saldo anterior " + Money.format(s.openingBalanceCents) +
-                    "\nReceitas " + Money.format(s.incomeCents()) + "\nDespesas " + Money.format(s.expensesCents()) +
-                    "\nResultado do mês " + Money.format(s.netCents()) +
-                    "\nSaldo acumulado " + Money.format(s.closingBalanceCents()),14);
+
+            GridLayout gridLayoutResumoMeses = new GridLayout(requireContext());
+            gridLayoutResumoMeses.setColumnCount(2);
+            gridLayoutResumoMeses.setLayoutParams(layoutResumoMes);
+            row.addView(gridLayoutResumoMeses);
+
+            FinanceUi.text(gridLayoutResumoMeses, "Saldo anterior: ", 12);
+            FinanceUi.sensitiveText(gridLayoutResumoMeses, Money.format(s.openingBalanceCents), 12);
+
+            FinanceUi.text(gridLayoutResumoMeses, "Receitas: ", 12);
+            FinanceUi.sensitiveText(gridLayoutResumoMeses, Money.format(s.incomeCents()), 12);
+
+            FinanceUi.text(gridLayoutResumoMeses, "Despesas: ", 12);
+            FinanceUi.sensitiveText(gridLayoutResumoMeses, Money.format(s.expensesCents()), 12);
+
+            FinanceUi.text(gridLayoutResumoMeses, "Resultado do mês: ", 12);
+            FinanceUi.sensitiveText(gridLayoutResumoMeses, Money.format(s.netCents()), 12);
+
+            FinanceUi.text(gridLayoutResumoMeses, "Saldo acumulado: ", 12);
+            FinanceUi.sensitiveText(gridLayoutResumoMeses, Money.format(s.closingBalanceCents()), 12);
             row.setOnClickListener(v -> model.selectMonth(month));
         }
     }

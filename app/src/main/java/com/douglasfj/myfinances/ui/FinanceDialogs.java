@@ -1,6 +1,8 @@
 package com.douglasfj.myfinances.ui;
 
 import android.text.InputType;
+import android.content.Context;
+import androidx.appcompat.view.ContextThemeWrapper;
 import android.widget.*;
 import com.douglasfj.myfinances.R;
 import androidx.appcompat.app.AlertDialog;
@@ -25,24 +27,30 @@ public final class FinanceDialogs {
     private FinanceDialogs() {}
     private static FinanceViewModel model(Fragment f) { return new ViewModelProvider(f.requireActivity()).get(FinanceViewModel.class); }
     public static void pickMonth(Fragment fragment, YearMonth initial, Consumer<YearMonth> selected) {
-        LinearLayout content = form(fragment);
-        NumberPicker month = new NumberPicker(fragment.requireContext()); month.setMinValue(1); month.setMaxValue(12);
+        pickMonth(fragment.requireContext(),initial,selected);
+    }
+    private static void pickMonth(Context context, YearMonth initial, Consumer<YearMonth> selected) {
+        LinearLayout content = form(context);
+        NumberPicker month = new NumberPicker(context); month.setMinValue(1); month.setMaxValue(12);
         month.setDisplayedValues(new String[]{"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"});
         month.setValue(initial.getMonthValue()); month.setContentDescription("Mês"); content.addView(month);
-        NumberPicker year = new NumberPicker(fragment.requireContext()); year.setMinValue(1900); year.setMaxValue(2200);
+        NumberPicker year = new NumberPicker(context); year.setMinValue(1900); year.setMaxValue(2200);
         year.setValue(initial.getYear()); year.setContentDescription("Ano"); content.addView(year);
-        new AlertDialog.Builder(fragment.requireContext()).setTitle("Selecionar mês").setView(content)
+        new AlertDialog.Builder(context).setTitle("Selecionar mês").setView(content)
                 .setNegativeButton("Cancelar", null).setPositiveButton("Selecionar", (d,w) -> {
                     content.clearFocus(); selected.accept(YearMonth.of(year.getValue(), month.getValue()));
                 }).show();
     }
     private static LinearLayout form(Fragment f) {
-        LinearLayout form = FinanceUi.column(f.requireContext()); int p = FinanceUi.dp(f.requireContext(),20);
+        return form(f.requireContext());
+    }
+    private static LinearLayout form(Context context) {
+        LinearLayout form = FinanceUi.column(context); int p = FinanceUi.dp(context,20);
         form.setPadding(p,p,p,p); return form;
     }
     private static TextView label(LinearLayout form, String text, int size) {
         TextView label=FinanceUi.text(form,text,size);
-        label.setTextColor(form.getContext().getColor(R.color.dialog_text));
+        label.setTextColor(FinanceUi.color(form.getContext(),R.attr.financeTextColor,form.getContext().getColor(R.color.dialog_text)));
         return label;
     }
     private static EditText field(LinearLayout form, String title, String value, int type) {
@@ -54,10 +62,10 @@ public final class FinanceDialogs {
         CheckBox check = new CheckBox(form.getContext()); check.setText(label); check.setChecked(checked); form.addView(check); return check;
     }
     private static void dialog(Fragment f, String title, LinearLayout form, Runnable save) {
-        ScrollView scroll = new ScrollView(f.requireContext()); scroll.addView(form);
+        ScrollView scroll = new ScrollView(form.getContext()); scroll.addView(form);
         TextView error = label(form,"",14); error.setTextColor(form.getContext().getColor(R.color.dialog_error));
         error.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
-        AlertDialog dialog = new AlertDialog.Builder(f.requireContext()).setTitle(title).setView(scroll)
+        AlertDialog dialog = new AlertDialog.Builder(form.getContext()).setTitle(title).setView(scroll)
                 .setNegativeButton("Cancelar",null).setPositiveButton("Salvar",null).create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             try { save.run(); dialog.dismiss(); }
@@ -74,13 +82,15 @@ public final class FinanceDialogs {
         entry(f,existing,income,vm.month(),vm::saveEntry);
     }
     public static void entry(Fragment f, Entry existing, boolean income, YearMonth initial, EntrySaver save) {
-        LinearLayout form = form(f);
+        Context context = new ContextThemeWrapper(f.requireContext(),income
+                ? R.style.ThemeOverlay_MyFinances_Entry_Emerald : R.style.ThemeOverlay_MyFinances_Entry_Red);
+        LinearLayout form = form(context);
         ValoresEntity value = existing == null ? null : existing.value;
         EditText name = field(form,"Nome do lançamento", value == null ? "" : value.nomeValor, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         EditText amount = field(form,"Valor em reais", value == null ? "" : Money.input(value.valorReais), InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         YearMonth[] month = {initial};
         Button monthButton = FinanceUi.button(form,FinanceUi.month(month[0]),v -> {});
-        monthButton.setOnClickListener(v -> pickMonth(f,month[0],selected -> {month[0]=selected; monthButton.setText(FinanceUi.month(selected));}));
+        monthButton.setOnClickListener(v -> pickMonth(context,month[0],selected -> {month[0]=selected; monthButton.setText(FinanceUi.month(selected));}));
         if (existing != null) monthButton.setEnabled(false);
         CheckBox tax = check(form,"É um imposto", value != null && value.imposto); tax.setVisibility(income ? android.view.View.GONE : android.view.View.VISIBLE);
         CheckBox fixed = check(form,"Repetir todo mês (valor fixo)", value != null && value.mesInicioFixo != null);

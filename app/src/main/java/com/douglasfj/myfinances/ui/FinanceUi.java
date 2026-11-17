@@ -12,6 +12,7 @@ import android.widget.*;
 import androidx.annotation.ColorRes;
 import androidx.core.content.ContextCompat;
 
+import com.douglasfj.myfinances.ui.shared.SensitiveTextView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import java.time.YearMonth;
@@ -37,6 +38,14 @@ public final class FinanceUi {
         LinearLayout layout = new LinearLayout(c); layout.setOrientation(LinearLayout.VERTICAL);
         layout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2)); return layout;
     }
+
+    public static LinearLayout line(LinearLayout parent) {
+        LinearLayout layout = new LinearLayout(parent.getContext());
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(-1, ViewGroup.LayoutParams.WRAP_CONTENT));
+        parent.addView(layout);
+        return layout;
+    }
     public static LinearLayout page(Context c, ScrollView scroll) {
         LinearLayout layout = column(c); int padding = dp(c, 20);
         layout.setPadding(padding, padding, padding, padding); scroll.setFillViewport(true);
@@ -49,7 +58,37 @@ public final class FinanceUi {
         text.setPadding(0, p, 0, p); parent.addView(text); return text;
     }
 
-    public static TextView textWithColor(LinearLayout parent, String value, int size, @ColorRes int id) {
+    public static TextView text(ViewGroup parent, String value, int size) {
+        TextView text = new TextView(parent.getContext()); text.setText(value); text.setTextSize(size);
+        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,Color.rgb(30, 45, 40)));
+        int p = dp(parent.getContext(), 6);
+        text.setPadding(0, p, 0, p); parent.addView(text); return text;
+    }
+
+    public static SensitiveTextView sensitiveText(ViewGroup parent, String value, int size) {
+        SensitiveTextView text = new SensitiveTextView(parent.getContext());
+        text.setText(value);
+        text.setTextSize(size);
+        text.setTextColor(color(parent.getContext(),size>=20 ? R.attr.financeHeadingColor : R.attr.financeTextColor,Color.rgb(30, 45, 40)));
+        int p = dp(parent.getContext(), 6);
+        text.setPadding(0, p, 0, p); parent.addView(text);
+        return text;
+    }
+
+    public static SensitiveTextView sensitiveTextWithColor(ViewGroup parent, String value, int size, @ColorRes int id) {
+        SensitiveTextView text = new SensitiveTextView(parent.getContext());
+        text.setText(value);
+        text.setTextSize(size);
+        text.setTextColor(
+                color(parent.getContext(), id)
+        );
+        int p = dp(parent.getContext(), 6);
+        text.setPadding(0, p, 0, p);
+        parent.addView(text);
+        return text;
+    }
+
+    public static TextView textWithColor(ViewGroup parent, String value, int size, @ColorRes int id) {
         TextView text = new TextView(parent.getContext()); text.setText(value); text.setTextSize(size);
 
         text.setTextColor(
@@ -61,11 +100,37 @@ public final class FinanceUi {
     }
 
     public static MaterialButton button(LinearLayout parent, String label, View.OnClickListener action) {
-        MaterialButton button = new MaterialButton(parent.getContext()); button.setText(label); button.setAllCaps(false);
+        MaterialButton button = new MaterialButton(parent.getContext());
+        button.setText(label);
+        button.setAllCaps(false);
         button.setMinHeight(dp(parent.getContext(), 48));
-        button.setBackgroundTintList(ColorStateList.valueOf(color(parent.getContext(),R.attr.financeActionColor,Color.rgb(4, 120, 87)))); button.setTextColor(Color.WHITE);
-        parent.addView(button, new LinearLayout.LayoutParams(-1, -2)); button.setOnClickListener(action); return button;
+        button.setBackgroundTintList(
+                ColorStateList.valueOf(
+                        color(parent.getContext(),R.attr.financeActionColor,Color.rgb(4, 120, 87))
+                )
+        );
+        button.setTextColor(Color.WHITE);
+        parent.addView(button, new LinearLayout.LayoutParams(-1, -2));
+        button.setOnClickListener(action);
+        return button;
     }
+
+    public static MaterialButton button(LinearLayout parent, String label, View.OnClickListener action, LinearLayout.LayoutParams params) {
+        MaterialButton button = new MaterialButton(parent.getContext());
+        button.setText(label);
+        button.setAllCaps(false);
+        button.setMinHeight(dp(parent.getContext(), 48));
+        button.setBackgroundTintList(
+                ColorStateList.valueOf(
+                        color(parent.getContext(),R.attr.financeActionColor,Color.rgb(4, 120, 87))
+                )
+        );
+        button.setTextColor(Color.WHITE);
+        parent.addView(button, params);
+        button.setOnClickListener(action);
+        return button;
+    }
+
     public static LinearLayout card(LinearLayout parent) {
         Context c = parent.getContext();
         MaterialCardView card = new MaterialCardView(c);

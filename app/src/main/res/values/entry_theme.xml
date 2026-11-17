@@ -1,0 +1,46 @@
+<resources>
+    <style name="ThemeOverlay.MyFinances.Entry.Red" parent="ThemeOverlay.MyFinances.AlertDialog">
+        <item name="alertDialogTheme">@style/ThemeOverlay.MyFinances.Entry.Red</item>
+        <item name="android:colorBackgroundFloating">@color/red_50</item>
+        <item name="android:textColorPrimary">@color/red_950</item>
+        <item name="android:textColorSecondary">@color/red_800</item>
+        <item name="android:textColorHint">@color/red_800</item>
+        <item name="financeTextColor">@color/red_950</item>
+        <item name="financeActionColor">@color/red_700</item>
+        <item name="colorPrimary">@color/red_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/red_700</item>
+        <item name="colorAccent">@color/red_700</item>
+        <item name="android:colorAccent">@color/red_700</item>
+        <item name="colorControlActivated">@color/red_700</item>
+        <item name="android:colorControlActivated">@color/red_700</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyFinances.DialogButton.Red</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyFinances.DialogButton.Red</item>
+    </style>
+
+    <style name="ThemeOverlay.MyFinances.Entry.Emerald" parent="ThemeOverlay.MyFinances.AlertDialog">
+        <item name="alertDialogTheme">@style/ThemeOverlay.MyFinances.Entry.Emerald</item>
+        <item name="android:colorBackgroundFloating">@color/emerald_50</item>
+        <item name="android:textColorPrimary">@color/emerald_950</item>
+        <item name="android:textColorSecondary">@color/emerald_800</item>
+        <item name="android:textColorHint">@color/emerald_800</item>
+        <item name="financeTextColor">@color/emerald_950</item>
+        <item name="financeActionColor">@color/emerald_700</item>
+        <item name="colorPrimary">@color/emerald_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/emerald_700</item>
+        <item name="colorAccent">@color/emerald_700</item>
+        <item name="android:colorAccent">@color/emerald_700</item>
+        <item name="colorControlActivated">@color/emerald_700</item>
+        <item name="android:colorControlActivated">@color/emerald_700</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyFinances.DialogButton.Emerald</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyFinances.DialogButton.Emerald</item>
+    </style>
+
+    <style name="Widget.MyFinances.DialogButton.Red" parent="Widget.MyFinances.DialogButton">
+        <item name="android:textColor">@color/red_700</item>
+    </style>
+    <style name="Widget.MyFinances.DialogButton.Emerald" parent="Widget.MyFinances.DialogButton">
+        <item name="android:textColor">@color/emerald_700</item>
+    </style>
+</resources>
