@@ -98,7 +98,7 @@ public class DatabaseImportTest {
             try(SQLiteDatabase edited=SQLiteDatabase.openDatabase(file.getPath(),null,SQLiteDatabase.OPEN_READWRITE)) { edited.setVersion(99); }
             assertThrows(IllegalArgumentException.class,() -> replace(file)); assertOldData();
             try(SQLiteDatabase edited=SQLiteDatabase.openDatabase(file.getPath(),null,SQLiteDatabase.OPEN_READWRITE)) {
-                edited.setVersion(2); edited.execSQL("INSERT INTO MESES_VALORES(ID_MES,ID_VALOR) VALUES(999,999)");
+                edited.setVersion(3); edited.execSQL("INSERT INTO MESES_VALORES(ID_MES,ID_VALOR) VALUES(999,999)");
             }
             assertThrows(IllegalArgumentException.class,() -> replace(file)); assertOldData();
         } finally { file.delete(); }
@@ -124,7 +124,7 @@ public class DatabaseImportTest {
             replace(file);
             assertEquals("Legado",target.valoresDAO().getAll().get(0).nomeValor);
             assertEquals(Integer.valueOf(2026*12+10),target.valoresDAO().getAll().get(0).mesInicioFixo);
-            assertEquals(2,target.getOpenHelper().getReadableDatabase().getVersion());
+            assertEquals(3,target.getOpenHelper().getReadableDatabase().getVersion());
         } finally { file.delete(); context.deleteDatabase(legacyName); }
     }
 

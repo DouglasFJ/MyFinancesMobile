@@ -34,6 +34,12 @@ public class FinanceUiTest {
         }
     }
     @Test public void revenueFormPersistsValueAndUpdatesSummaryAfterRecreation() {
+        saveRevenueThroughForm("1.234,56",123456);
+    }
+    @Test public void negativeRevenueFormPersistsSignedAmount() {
+        saveRevenueThroughForm("-1234,56",-123456);
+    }
+    private void saveRevenueThroughForm(String amount,long expectedCents) {
         String title="Teste de interface " + System.currentTimeMillis();
         AtomicReference<YearMonth> selected=new AtomicReference<>();
         FinanceIdle idle=new FinanceIdle();
@@ -46,12 +52,12 @@ public class FinanceUiTest {
             IdlingRegistry.getInstance().register(idle);
             onView(withId(R.id.fragment_home_add_income)).perform(click());
             onView(withContentDescription("Nome do lançamento")).perform(replaceText(title));
-            onView(withContentDescription("Valor em reais")).perform(replaceText("1.234,56"),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+            onView(withContentDescription("Valor em reais")).perform(replaceText(amount),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
             onView(withText("Salvar")).perform(click());
             onIdle();
             scenario.onActivity(activity -> {
                 FinanceViewModel vm=new ViewModelProvider(activity).get(FinanceViewModel.class);
-                assertTrue(vm.state().getValue().entries.stream().anyMatch(e -> title.equals(e.value.nomeValor) && Money.cents(e.value.valorReais)==123456));
+                assertTrue(vm.state().getValue().entries.stream().anyMatch(e -> title.equals(e.value.nomeValor) && Money.cents(e.value.valorReais)==expectedCents));
             });
             IdlingRegistry.getInstance().unregister(idle);
             scenario.recreate();
@@ -68,7 +74,7 @@ public class FinanceUiTest {
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
             for(int i=0;i<3;i++) {
                 onView(withId(R.id.navigation_month)).perform(click());
-                onView(withText("Seus meses")).check(matches(isDisplayed()));
+                onView(withText("Histórico mensal")).perform(scrollTo()).check(matches(isDisplayed()));
                 onView(withId(R.id.navigation_card)).perform(click());
                 onView(withText("Cadastrar cartão")).check(matches(isDisplayed()));
                 onView(withId(R.id.navigation_invoice)).perform(click());

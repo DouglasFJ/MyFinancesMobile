@@ -6,6 +6,7 @@ import java.time.YearMonth;
 
 /** A monthly occurrence of a normal entry or an aggregated card invoice. */
 public class LedgerRow {
+    @androidx.room.Ignore public FinanceModels.Purchase purchase;
     public long rowId;
     public Long valueId;
     public Long cardId;
@@ -23,7 +24,7 @@ public class LedgerRow {
         if (isInvoice()) throw new IllegalStateException("Uma fatura não é um lançamento avulso.");
         FinanceModels.Entry entry = new FinanceModels.Entry();
         ValoresEntity value = new ValoresEntity();
-        value.idValor = valueId; value.nomeValor = name; value.valorReais = amount;
+        value.idValor = valueId; value.nomeValor = name; value.valorReais = java.math.BigDecimal.valueOf(Money.cents(amount), 2);
         value.imposto = tax; value.indicadorTipoValor = income ? IndicadorTipoValor.RECEITA : IndicadorTipoValor.DESPESA;
         value.mesInicioFixo = fixed == 1 ? RoomFinanceRepository.key(period()) : null;
         entry.value = value; entry.linkId = rowId;

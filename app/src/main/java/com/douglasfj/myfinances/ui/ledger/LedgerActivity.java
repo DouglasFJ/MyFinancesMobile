@@ -14,7 +14,11 @@ public class LedgerActivity extends AppCompatActivity {
     public static Intent intent(Context context,boolean income) {
         return new Intent(context,LedgerActivity.class).putExtra("income",income);
     }
+    public static Intent purchasesIntent(Context context, long card) {
+        return new Intent(context,LedgerActivity.class).putExtra("purchases",true).putExtra("card",card);
+    }
     @Override protected void onCreate(Bundle saved) {
+        if(getIntent().getBooleanExtra("purchases",false)) getTheme().applyStyle(R.style.ThemeOverlay_MyFinances_Amber,true);
         super.onCreate(saved);
         FrameLayout root=new FrameLayout(this); root.setId(R.id.ledger_host); setContentView(root);
         if(getSupportActionBar()!=null) getSupportActionBar().hide();
@@ -26,7 +30,8 @@ public class LedgerActivity extends AppCompatActivity {
         });
         if(saved==null) {
             LedgerFragment fragment=new LedgerFragment(); Bundle args=new Bundle();
-            args.putBoolean("income",getIntent().getBooleanExtra("income",false)); fragment.setArguments(args);
+            args.putBoolean("income",getIntent().getBooleanExtra("income",false));
+            fragment.setArguments(args);
             getSupportFragmentManager().beginTransaction().replace(R.id.ledger_host,fragment).commit();
         }
         new ViewModelProvider(this).get(LedgerViewModel.class).changed().observe(this,changed -> {

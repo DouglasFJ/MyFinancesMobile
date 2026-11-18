@@ -10,8 +10,15 @@ public class MoneyTest {
         assertEquals(123456,Money.parse("1234.56"));
         assertEquals(1,Money.parse("0,01"));
     }
+    @Test public void acceptsNegativeAmountsAndSplitsCredits() {
+        assertEquals(-123456,Money.parse("-1.234,56"));
+        assertEquals(-1,Money.parse("-0.01"));
+        assertArrayEquals(new long[]{-3334,-3333,-3333},Money.split(-10000,3));
+        assertEquals(-99999999999L,Money.parse("-999999999.99"));
+        assertThrows(IllegalArgumentException.class,() -> Money.parse("-1000000000"));
+    }
     @Test public void rejectsInvalidAmounts() {
-        for(String invalid:new String[]{"0","-1","1,234","abc","NaN","1.000.00","9999999999999999999999"}) {
+        for(String invalid:new String[]{"0","1,234","abc","NaN","1.000.00","9999999999999999999999"}) {
             assertThrows(IllegalArgumentException.class,() -> Money.parse(invalid));
         }
     }

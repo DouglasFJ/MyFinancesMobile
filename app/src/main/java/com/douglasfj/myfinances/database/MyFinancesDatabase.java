@@ -25,7 +25,7 @@ import com.douglasfj.myfinances.models.entities.MesesEntity;
 import com.douglasfj.myfinances.models.entities.MesesValoresEntity;
 import com.douglasfj.myfinances.models.entities.ValoresEntity;
 
-@Database(entities = {CartoesEntity.class, ComprasCartoesEntity.class, MesesEntity.class, MesesValoresEntity.class, ValoresEntity.class}, version = 2)
+@Database(entities = {CartoesEntity.class, ComprasCartoesEntity.class, MesesEntity.class, MesesValoresEntity.class, ValoresEntity.class}, version = 3)
 @TypeConverters({MyFinancesConverters.class})
 public abstract class MyFinancesDatabase extends RoomDatabase {
 
@@ -39,6 +39,15 @@ public abstract class MyFinancesDatabase extends RoomDatabase {
             db.execSQL("UPDATE VALORES SET MES_INICIO_FIXO = (SELECT MIN(M.ANO * 12 + M.MES - 1) " +
                     "FROM MESES M JOIN MESES_VALORES MV ON MV.ID_MES = M.ID_MES " +
                     "WHERE MV.ID_VALOR = VALORES.ID_VALOR) WHERE INDICADOR_VALOR_FIXO = 1 AND ID_COMPRA_CARTAO IS NULL");
+        }
+    };
+
+    public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `VALORES_NEW` (`ID_VALOR` INTEGER PRIMARY KEY AUTOINCREMENT, `NOME_VALOR` TEXT, `VALOR_REAIS` INTEGER NOT NULL, `DATA_INSERCAO_VALOR` INTEGER, `INDICADOR_VALOR_FIXO` INTEGER, `INDICADOR_TIPO_VALOR` INTEGER, `TIPO_DESPESA` TEXT, `ID_COMPRA_CARTAO` INTEGER, `IMPOSTO` INTEGER NOT NULL DEFAULT 0, `MES_INICIO_FIXO` INTEGER, `MES_FIM_FIXO` INTEGER)");
+            db.execSQL("INSERT INTO VALORES_NEW (`ID_VALOR`,`NOME_VALOR`,`VALOR_REAIS`,`DATA_INSERCAO_VALOR`,`INDICADOR_VALOR_FIXO`,`INDICADOR_TIPO_VALOR`,`TIPO_DESPESA`,`ID_COMPRA_CARTAO`,`IMPOSTO`,`MES_INICIO_FIXO`,`MES_FIM_FIXO`) SELECT `ID_VALOR`,`NOME_VALOR`,CAST(ROUND(VALOR_REAIS * 100) AS INTEGER),`DATA_INSERCAO_VALOR`,`INDICADOR_VALOR_FIXO`,`INDICADOR_TIPO_VALOR`,`TIPO_DESPESA`,`ID_COMPRA_CARTAO`,`IMPOSTO`,`MES_INICIO_FIXO`,`MES_FIM_FIXO` FROM VALORES");
+            db.execSQL("DROP TABLE VALORES");
+            db.execSQL("ALTER TABLE VALORES_NEW RENAME TO VALORES");
         }
     };
 

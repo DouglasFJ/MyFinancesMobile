@@ -16,10 +16,10 @@ import java.util.*;
 final class LedgerAdapter extends RecyclerView.Adapter<LedgerAdapter.Holder> {
     interface Actions { void edit(LedgerRow row); void delete(LedgerRow row); void pay(LedgerRow row); void more(); }
     private List<LedgerRow> rows=Collections.emptyList();
-    private final boolean income;
+    private final boolean income, purchases;
     private final Actions actions;
     private boolean more,busy;
-    LedgerAdapter(boolean income,Actions actions) { this.income=income; this.actions=actions; }
+    LedgerAdapter(boolean income,boolean purchases,Actions actions) { this.income=income; this.purchases=purchases; this.actions=actions; }
     void submit(LedgerPage page) { rows=page.rows; more=page.hasMore; notifyDataSetChanged(); }
     void busy(boolean busy) { this.busy=busy; notifyDataSetChanged(); }
     @Override public int getItemCount() { return rows.size()+(more ? 1 : 0); }
@@ -35,22 +35,25 @@ final class LedgerAdapter extends RecyclerView.Adapter<LedgerAdapter.Holder> {
         RecyclerView.LayoutParams params=new RecyclerView.LayoutParams(-1,-2);
         int margin=FinanceUi.dp(context,8); params.setMargins(0,margin,0,margin); card.setLayoutParams(params);
         card.setRadius(FinanceUi.dp(context,16)); card.setCardBackgroundColor(context.getColor(R.color.neutral_50)); card.setStrokeWidth(FinanceUi.dp(context,1));
-        card.setStrokeColor(context.getColor(income ? R.color.emerald_200 : R.color.red_200));
+        card.setStrokeColor(context.getColor(purchases ? R.color.amber_200 : income ? R.color.emerald_200 : R.color.red_200));
         LinearLayout column=FinanceUi.column(context); int padding=FinanceUi.dp(context,16); column.setPadding(padding,padding,padding,padding); card.addView(column);
         return new Holder(card,column);
     }
     @Override public void onBindViewHolder(@NonNull Holder holder,int position) {
         LinearLayout column=holder.column; column.removeAllViews();
-        int color=column.getContext().getColor(income ? R.color.emerald_700 : R.color.red_700);
+        int color=column.getContext().getColor(purchases ? R.color.amber_700 : income ? R.color.emerald_700 : R.color.red_700);
         if(position==rows.size()) {
             MaterialButton button=FinanceUi.button(column,busy ? "Carregando…" : "Ver mais",v -> actions.more());
             button.setId(R.id.ledger_more); button.setBackgroundTintList(ColorStateList.valueOf(color)); button.setEnabled(!busy); return;
         }
         LedgerRow row=rows.get(position);
         TextView name=FinanceUi.text(column,row.name,18); name.setId(R.id.ledger_row_name);
-        name.setTextColor(column.getContext().getColor(income ? R.color.emerald_950 : R.color.red_950));
-        TextView amount=FinanceUi.text(column,Money.format(Money.cents(row.amount)),22); amount.setTextColor(color);
-        FinanceUi.text(column,FinanceUi.month(row.period()) + " · " + (row.isInvoice() ? "Fatura" : row.fixed==1 ? "Fixo mensal" : "Variável") +
+        name.setTextColor(column.getContext().getColor(purchases ? R.color.amber_950 : income ? R.color.emerald_950 : R.color.red_950));
+        TextView amount=FinanceUi.text(column,(purchases ? "Valor total: " : "") + Money.format(Money.cents(row.amount)),22); amount.setTextColor(color);
+        if(row.purchase != null) {
+            FinanceUi.text(column,row.purchase.cardName + " · " + row.purchase.purchase.numeroParcelas + " parcela(s)",14);
+            FinanceUi.text(column,"Primeira fatura: " + (row.purchase.purchase.dataPrimeiraParcela == null ? "Não informado" : FinanceUi.month(row.period())),13);
+        } else FinanceUi.text(column,FinanceUi.month(row.period()) + " · " + (row.isInvoice() ? "Fatura" : row.fixed==1 ? "Fixo mensal" : "Variável") +
                 (row.tax ? " · Imposto" : "") + (income ? "" : row.paid==1 ? " · Paga" : " · Pendente"),13);
         LinearLayout buttons=new LinearLayout(column.getContext()); column.addView(buttons);
         action(buttons,"Editar",R.drawable.pencil,color,() -> actions.edit(row)).setContentDescription("Editar " + row.name);

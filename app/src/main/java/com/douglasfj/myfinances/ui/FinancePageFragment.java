@@ -29,7 +29,8 @@ public abstract class FinancePageFragment extends Fragment {
     }
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle saved) {
         model.state().observe(getViewLifecycleOwner(),state -> {
-            content.removeAllViews(); render(content,state);
+            content.removeAllViews();
+            render(content,state);
         });
     }
     protected abstract void render(LinearLayout content, State state);

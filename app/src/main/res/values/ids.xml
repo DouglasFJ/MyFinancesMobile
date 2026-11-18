@@ -4,6 +4,7 @@
     <item name="ledger_host" type="id"/>
     <item name="ledger_search" type="id"/>
     <item name="ledger_row_name" type="id"/>
+    <item name="ledger_card" type="id"/>
     <item name="ledger_month" type="id"/>
     <item name="ledger_status" type="id"/>
     <item name="ledger_list" type="id"/>

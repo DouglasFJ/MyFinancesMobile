@@ -61,10 +61,14 @@ public final class RoomFinanceRepository implements FinanceRepository {
         return name.trim();
     }
     private static void amount(long cents) {
-        if (cents <= 0 || cents > 99999999999L) throw new IllegalArgumentException("Informe um valor positivo válido.");
+        if (cents == 0 || cents < -99999999999L || cents > 99999999999L) throw new IllegalArgumentException("Informe um valor válido diferente de zero.");
     }
     @Override public void saveEntry(Long id, YearMonth month, String title, long cents,
                                     boolean income, boolean tax, boolean fixed, boolean paid) {
+        saveEntry(id, month, title, cents, income, tax, fixed, paid, true);
+    }
+    @Override public void saveEntry(Long id, YearMonth month, String title, long cents,
+                                    boolean income, boolean tax, boolean fixed, boolean paid, boolean future) {
         String validName = name(title); amount(cents);
         db.runInTransaction(() -> {
             ValoresEntity old = id == null ? null : dao.value(id);
@@ -72,13 +76,17 @@ public final class RoomFinanceRepository implements FinanceRepository {
             if (old != null && old.idCompraCartao != null)
                 throw new IllegalArgumentException("Edite esta parcela na aba Cartões.");
             Integer previousEnd = old == null ? null : old.mesFimFixo;
-            if (old != null) deleteEntryInternal(old, month);
-            ValoresEntity value = new ValoresEntity(validName, cents / 100.0, new Date(),
-                    fixed ? IndicadorValorFixo.FIXO : IndicadorValorFixo.NAO_FIXO,
+            if (old != null) {
+                if (!future) preserveFollowingMonths(old, month);
+                deleteEntryInternal(old, month);
+            }
+            boolean repeat = fixed && (old == null || future);
+            ValoresEntity value = new ValoresEntity(validName, java.math.BigDecimal.valueOf(cents, 2), new Date(),
+                    repeat ? IndicadorValorFixo.FIXO : IndicadorValorFixo.NAO_FIXO,
                     income ? IndicadorTipoValor.RECEITA : IndicadorTipoValor.DESPESA, TipoDespesa.EXTRAS, null);
             value.imposto = !income && tax;
-            value.mesInicioFixo = fixed ? key(month) : null;
-            value.mesFimFixo = fixed ? previousEnd : null;
+            value.mesInicioFixo = repeat ? key(month) : null;
+            value.mesFimFixo = repeat ? previousEnd : null;
             value.idValor = dao.insertValue(value);
             MesesEntity target = ensureMonth(month);
             // ensureMonth may already have materialized this recurring entry.
@@ -89,6 +97,17 @@ public final class RoomFinanceRepository implements FinanceRepository {
             for (MesesEntity existing : dao.months()) materialize(existing);
         });
     }
+    // Split the series around a single-month exception. Move existing links to retain payment states.
+    private void preserveFollowingMonths(ValoresEntity old, YearMonth month) {
+        if (old.mesInicioFixo == null || (old.mesFimFixo != null && old.mesFimFixo <= key(month))) return;
+        ValoresEntity next = new ValoresEntity(old.nomeValor, old.valorReais, old.dataInsercaoValor,
+                old.indicadorValorFixo, old.indicadorTipoValor, old.tipoDespesa, null);
+        next.imposto = old.imposto;
+        next.mesInicioFixo = key(month) + 1;
+        next.mesFimFixo = old.mesFimFixo;
+        next.idValor = dao.insertValue(next);
+        dao.moveFollowingLinks(old.idValor, next.idValor, key(month));
+    }
     private void deleteEntryInternal(ValoresEntity value, YearMonth month) {
         if (value.mesInicioFixo != null) {
             value.mesFimFixo = Math.min(value.mesFimFixo == null ? Integer.MAX_VALUE : value.mesFimFixo, key(month) - 1);
@@ -98,11 +117,13 @@ public final class RoomFinanceRepository implements FinanceRepository {
             dao.deleteLinks(value.idValor); dao.deleteValue(value.idValor);
         }
     }
-    @Override public void deleteEntry(long id, YearMonth fromMonth) {
+    @Override public void deleteEntry(long id, YearMonth fromMonth) { deleteEntry(id, fromMonth, true); }
+    @Override public void deleteEntry(long id, YearMonth fromMonth, boolean future) {
         db.runInTransaction(() -> {
             ValoresEntity value = dao.value(id);
             if (value == null) return;
             if (value.idCompraCartao != null) throw new IllegalArgumentException("Exclua a compra na aba Cartões.");
+            if (!future) preserveFollowingMonths(value, fromMonth);
             deleteEntryInternal(value, fromMonth);
         });
     }
@@ -116,6 +137,23 @@ public final class RoomFinanceRepository implements FinanceRepository {
             boolean more=rows.size()>LedgerPage.SIZE;
             if(more) rows=new java.util.ArrayList<>(rows.subList(0,LedgerPage.SIZE));
             return new LedgerPage(rows,dao.months(),more);
+        });
+    }
+    @Override public LedgerPage purchaseLedger(String search, YearMonth month, Long card, int offset) {
+        return db.runInTransaction(() -> {
+            List<FinanceModels.Purchase> purchases = dao.purchaseLedger(PurchaseQuery.page(search,month,card,offset));
+            boolean more = purchases.size() > LedgerPage.SIZE;
+            List<LedgerRow> rows = new java.util.ArrayList<>();
+            for (FinanceModels.Purchase purchase : purchases.subList(0,Math.min(purchases.size(),LedgerPage.SIZE))) {
+                LedgerRow row = new LedgerRow(); row.purchase = purchase;
+                row.rowId = purchase.purchase.idCompraCartao;
+                row.name = purchase.purchase.nomeCompra; row.amount = purchase.purchase.valorCompra;
+                YearMonth first = purchase.purchase.dataPrimeiraParcela == null ? YearMonth.now() :
+                        YearMonth.from(purchase.purchase.dataPrimeiraParcela.toInstant().atZone(ZoneId.systemDefault()));
+                row.month = first.getMonthValue(); row.year = first.getYear();
+                rows.add(row);
+            }
+            return new LedgerPage(rows,dao.months(),more,dao.cards());
         });
     }
     @Override public List<CartoesEntity> cards() { return dao.cards(); }
@@ -158,7 +196,7 @@ public final class RoomFinanceRepository implements FinanceRepository {
             for (int i = 0; i < parts.length; i++) {
                 MesesEntity month = ensureMonth(firstMonth.plusMonths(i));
                 ValoresEntity value = new ValoresEntity(validName + " (" + (i + 1) + "/" + installments + ")",
-                        parts[i] / 100.0, new Date(), IndicadorValorFixo.NAO_FIXO,
+                        java.math.BigDecimal.valueOf(parts[i], 2), new Date(), IndicadorValorFixo.NAO_FIXO,
                         IndicadorTipoValor.DESPESA, TipoDespesa.EXTRAS, purchase.idCompraCartao);
                 value.idValor = dao.insertValue(value);
                 link(month.idMes, value, false);

@@ -72,7 +72,7 @@ public final class FinanceModels {
                 if (invoice.lines.isEmpty()) continue;
                 Entry row = new Entry(); row.value = new ValoresEntity();
                 row.value.nomeValor = "Fatura " + card.nomeCartao;
-                row.value.valorReais = invoice.totalCents / 100.0;
+                row.value.valorReais = java.math.BigDecimal.valueOf(invoice.totalCents, 2);
                 row.value.indicadorTipoValor = com.douglasfj.myfinances.constantes.IndicadorTipoValor.DESPESA;
                 row.value.tipoDespesa = com.douglasfj.myfinances.constantes.TipoDespesa.EXTRAS;
                 row.invoiceCardId = card.idCartao; row.invoiceMonth = month;

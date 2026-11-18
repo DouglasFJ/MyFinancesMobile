@@ -30,4 +30,22 @@ public class DatabaseMigrationTest {
         }
         migrated.close();
     }
+    @Test public void migratesDecimalReaisToExactSignedCents() throws Exception {
+        SupportSQLiteDatabase old=helper.createDatabase("money-migration-test",2);
+        old.execSQL("INSERT INTO MESES(ID_MES,MES,ANO) VALUES(1,11,2026)");
+        old.execSQL("INSERT INTO VALORES(ID_VALOR,NOME_VALOR,VALOR_REAIS,IMPOSTO,MES_INICIO_FIXO) VALUES(1,'Refund',-123.45,1,24322),(2,'Cent',0.01,0,NULL),(3,'Limit',999999999.99,0,NULL)");
+        old.execSQL("INSERT INTO MESES_VALORES(ID_MES,ID_VALOR,INDICADOR_DESPESA_PAGA) VALUES(1,1,1)");
+        old.close();
+        SupportSQLiteDatabase migrated=helper.runMigrationsAndValidate("money-migration-test",3,true,MyFinancesDatabase.MIGRATION_2_3);
+        try(android.database.Cursor cursor=migrated.query("SELECT VALOR_REAIS FROM VALORES ORDER BY ID_VALOR")) {
+            assertTrue(cursor.moveToFirst()); assertEquals(-12345,cursor.getLong(0));
+            assertTrue(cursor.moveToNext()); assertEquals(1,cursor.getLong(0));
+            assertTrue(cursor.moveToNext()); assertEquals(99999999999L,cursor.getLong(0));
+        }
+        try(android.database.Cursor cursor=migrated.query("SELECT INDICADOR_DESPESA_PAGA FROM MESES_VALORES WHERE ID_VALOR=1")) {
+            assertTrue(cursor.moveToFirst()); assertEquals(1,cursor.getInt(0));
+        }
+        migrated.close();
+    }
+
 }

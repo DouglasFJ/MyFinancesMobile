@@ -10,6 +10,15 @@ import com.douglasfj.myfinances.constantes.TipoDespesa;
 import java.util.Date;
 
 public class MyFinancesConverters {
+    @TypeConverter
+    public static Long moneyToCents(java.math.BigDecimal value) {
+        return value == null ? null : value.movePointRight(2).longValueExact();
+    }
+    @TypeConverter
+    public static java.math.BigDecimal centsToMoney(Long value) {
+        return value == null ? null : java.math.BigDecimal.valueOf(value, 2);
+    }
+
     // DATE
     @TypeConverter
     public static Date fromTimestamp(Long value) {

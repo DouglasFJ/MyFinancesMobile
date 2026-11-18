@@ -95,6 +95,70 @@ public class LedgerUiTest {
             }
         }
     }
+    @Test public void purchasePageFiltersInvoicesAndEditsAndDeletesWholePurchase() {
+        Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        RoomFinanceRepository repository=new RoomFinanceRepository(MyFinancesDatabase.getDatabase(context));
+        String prefix="Compras UI " + System.currentTimeMillis(), cardA=prefix+" A", cardB=prefix+" B";
+        YearMonth first=YearMonth.of(2028,12), january=first.plusMonths(1);
+        repository.saveCard(null,cardA); repository.saveCard(null,cardB);
+        long a=repository.cards().stream().filter(c -> cardA.equals(c.nomeCartao)).findFirst().get().idCartao;
+        long b=repository.cards().stream().filter(c -> cardB.equals(c.nomeCartao)).findFirst().get().idCartao;
+        repository.savePurchase(null,a,prefix+" longa",10000,3,first);
+        repository.savePurchase(null,a,prefix+" curta",5000,1,first);
+        repository.savePurchase(null,b,prefix+" outra",9000,2,first);
+        Idle idle=new Idle();
+        try(ActivityScenario<LedgerActivity> scenario=ActivityScenario.launchActivityForResult(LedgerActivity.purchasesIntent(context,a))) {
+            attach(scenario,idle); IdlingRegistry.getInstance().register(idle);
+            onView(withId(R.id.nav_view)).check(doesNotExist());
+            onView(withId(R.id.ledger_card)).check(matches(withSpinnerText(cardA)));
+            onView(withId(R.id.ledger_search)).perform(replaceText(prefix),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+            onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 2 compra(s)")));
+            onView(withId(R.id.ledger_month)).perform(click());
+            onData(is(com.douglasfj.myfinances.ui.FinanceUi.month(january))).perform(click());
+            onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 1 compra(s)")));
+            onView(withText("Valor total: " + Money.format(10000))).check(matches(isDisplayed()));
+            scenario.recreate(); attach(scenario,idle);
+            onView(withId(R.id.ledger_month)).check(matches(withSpinnerText(com.douglasfj.myfinances.ui.FinanceUi.month(january))));
+            onView(withId(R.id.ledger_card)).check(matches(withSpinnerText(cardA)));
+            onView(withId(R.id.ledger_search)).check(matches(withText(prefix)));
+            scenario.onActivity(activity -> assertEquals(context.getColor(R.color.amber_700),
+                    com.douglasfj.myfinances.ui.FinanceUi.color(activity,R.attr.financeActionColor,0)));
+            onView(withId(R.id.ledger_card)).perform(click()); onData(is(cardB)).perform(click());
+            onView(withContentDescription("Editar "+prefix+" outra")).check(matches(isDisplayed()));
+            onView(withId(R.id.ledger_card)).perform(click()); onData(is(cardA)).perform(click());
+            onView(withContentDescription("Editar "+prefix+" longa")).perform(click());
+            onView(withContentDescription("Nome da compra")).perform(replaceText(prefix+" editada"));
+            onView(withContentDescription("Valor total em reais")).perform(replaceText("120,00"),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+            onView(withText("Salvar")).inRoot(isDialog()).perform(click());
+            onView(withContentDescription("Excluir "+prefix+" editada")).perform(click());
+            onView(withText("Confirmar")).inRoot(isDialog()).perform(click());
+            onView(withId(R.id.ledger_status)).check(matches(withText("Nenhuma compra encontrada.")));
+            assertEquals(5000,repository.load(first).invoice(a).totalCents);
+            assertEquals(0,repository.load(january).invoice(a).totalCents);
+            scenario.onActivity(activity -> activity.getOnBackPressedDispatcher().onBackPressed());
+            assertEquals(android.app.Activity.RESULT_OK,scenario.getResult().getResultCode());
+        } finally {
+            IdlingRegistry.getInstance().unregister(idle);
+            for(com.douglasfj.myfinances.data.FinanceModels.Purchase p:MyFinancesDatabase.getDatabase(context).financeiroDAO().purchases())
+                if(p.purchase.nomeCompra.startsWith(prefix)) repository.deletePurchase(p.purchase.idCompraCartao);
+            repository.deleteCard(a); repository.deleteCard(b);
+        }
+    }
+    @Test public void cardsButtonOpensPurchasesWithoutInlinePurchaseSection() {
+        Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        RoomFinanceRepository repository=new RoomFinanceRepository(MyFinancesDatabase.getDatabase(context));
+        String title="Botão compras " + System.currentTimeMillis(); repository.saveCard(null,title);
+        long card=repository.cards().stream().filter(c -> title.equals(c.nomeCartao)).findFirst().get().idCartao;
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
+            onView(withId(R.id.navigation_card)).perform(click());
+            onView(withText("Compras cadastradas")).check(doesNotExist());
+            onView(withText("Visualizar compras cartões")).perform(scrollTo(),click());
+            onView(withText("Compras dos cartões")).check(matches(isDisplayed()));
+            onView(withId(R.id.ledger_card)).check(matches(isDisplayed()));
+            onView(withId(R.id.nav_view)).check(doesNotExist());
+            androidx.test.espresso.Espresso.pressBack();
+        } finally { repository.deleteCard(card); }
+    }
     @Test public void monthButtonsOpenBothPagesWithoutBottomNavigation() {
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
             onView(withId(R.id.navigation_month)).perform(click());

@@ -39,9 +39,18 @@ public class LedgerViewModel extends AndroidViewModel {
     private final MutableLiveData<Event<PurchaseSelection>> purchases=new MutableLiveData<>();
     private final List<LedgerRow> rows=new ArrayList<>();
     private int generation;
-    private boolean configured, income, cleared;
+    private boolean configured, income, cleared, purchaseMode;
     public LedgerViewModel(@NonNull Application app,SavedStateHandle saved) { super(app); this.saved=saved; }
-    public void configure(boolean income) { if(!configured) { this.income=income; configured=true; reload(); } }
+    public void configure(boolean income) { configure(income,false,null); }
+    public void configure(boolean income, boolean purchases, Long initialCard) {
+        if(!configured) {
+            this.income=income; purchaseMode=purchases; configured=true;
+            if(!saved.contains("card")) saved.set("card",initialCard);
+            reload();
+        }
+    }
+    public Long card() { return saved.get("card"); }
+    public void card(Long card) { if(!Objects.equals(card,card())) { saved.set("card",card); reload(); } }
     public LiveData<LedgerPage> page() { return page; }
     public LiveData<Boolean> busy() { return busy; }
     public LiveData<Boolean> changed() { return changed; }
@@ -60,16 +69,16 @@ public class LedgerViewModel extends AndroidViewModel {
     }
     private void load(boolean append) {
         int ticket=++generation,offset=append ? rows.size() : 0;
-        String query=search(); YearMonth month=month();
+        String query=search(); YearMonth month=month(); Long card=card();
         busy.setValue(true);
         worker.execute(() -> {
             try {
-                LedgerPage next=repository().ledger(income,query,month,offset);
+                LedgerPage next=purchaseMode ? repository().purchaseLedger(query,month,card,offset) : repository().ledger(income,query,month,offset);
                 main.post(() -> {
                     if(cleared || ticket!=generation) return;
                     if(!append) rows.clear();
                     rows.addAll(next.rows);
-                    page.setValue(new LedgerPage(new ArrayList<>(rows),next.months,next.hasMore));
+                    page.setValue(new LedgerPage(new ArrayList<>(rows),next.months,next.hasMore,next.cards));
                     busy.setValue(false);
                 });
             } catch(Exception error) { main.post(() -> { if(ticket==generation) { busy.setValue(false); failure(error); } }); }
@@ -91,6 +100,10 @@ public class LedgerViewModel extends AndroidViewModel {
     public void saveEntry(Long id,YearMonth month,String name,long cents,boolean income,boolean tax,boolean fixed,boolean paid) {
         mutate(repo -> repo.saveEntry(id,month,name,cents,income,tax,fixed,paid));
     }
+    public void saveEntry(Long id,YearMonth month,String name,long cents,boolean income,boolean tax,boolean fixed,boolean paid,boolean future) {
+        mutate(repo -> repo.saveEntry(id,month,name,cents,income,tax,fixed,paid,future));
+    }
+    public void delete(LedgerRow row, boolean future) { mutate(repo -> repo.deleteEntry(row.valueId,row.period(),future)); }
     public void delete(LedgerRow row) { mutate(repo -> repo.deleteEntry(row.valueId,row.period())); }
     public void payInvoice(LedgerRow row) { mutate(repo -> repo.setInvoicePaid(row.cardId,row.period(),row.paid!=1)); }
     public void invoicePurchases(LedgerRow row,boolean delete) {

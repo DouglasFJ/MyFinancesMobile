@@ -7,6 +7,7 @@ import java.util.List;
 
 @Dao
 public interface FinanceiroDAO {
+    @RawQuery List<Purchase> purchaseLedger(androidx.sqlite.db.SupportSQLiteQuery query);
     @RawQuery List<com.douglasfj.myfinances.data.LedgerRow> ledger(androidx.sqlite.db.SupportSQLiteQuery query);
     @Query("UPDATE MESES_VALORES SET INDICADOR_DESPESA_PAGA=:paid WHERE ID_MES IN (SELECT ID_MES FROM MESES WHERE MES=:month AND ANO=:year) " +
             "AND ID_VALOR IN (SELECT V.ID_VALOR FROM VALORES V JOIN COMPRAS_CARTOES P ON P.ID_COMPRA_CARTAO=V.ID_COMPRA_CARTAO WHERE P.ID_CARTAO=:card)")
@@ -43,9 +44,9 @@ public interface FinanceiroDAO {
     List<ValoresEntity> recurring(int key);
     @Query("SELECT COUNT(*) FROM MESES_VALORES WHERE ID_MES=:month AND ID_VALOR=:value")
     int linkCount(long month, long value);
-    @Query("SELECT M.*, COALESCE(SUM(CASE WHEN V.INDICADOR_TIPO_VALOR=1 THEN V.VALOR_REAIS ELSE 0 END),0) AS income, " +
-            "COALESCE(SUM(CASE WHEN V.INDICADOR_TIPO_VALOR=0 THEN V.VALOR_REAIS ELSE 0 END),0) AS expenses, " +
-            "COALESCE(SUM(CASE WHEN V.IMPOSTO=1 THEN V.VALOR_REAIS ELSE 0 END),0) AS taxes " +
+    @Query("SELECT M.*, COALESCE(SUM(CASE WHEN V.INDICADOR_TIPO_VALOR=1 THEN V.VALOR_REAIS ELSE 0 END),0)/100.0 AS income, " +
+            "COALESCE(SUM(CASE WHEN V.INDICADOR_TIPO_VALOR=0 THEN V.VALOR_REAIS ELSE 0 END),0)/100.0 AS expenses, " +
+            "COALESCE(SUM(CASE WHEN V.IMPOSTO=1 THEN V.VALOR_REAIS ELSE 0 END),0)/100.0 AS taxes " +
             "FROM MESES M LEFT JOIN MESES_VALORES MV ON MV.ID_MES=M.ID_MES LEFT JOIN VALORES V ON V.ID_VALOR=MV.ID_VALOR " +
             "GROUP BY M.ID_MES ORDER BY M.ANO DESC, M.MES DESC")
     List<Summary> history();
@@ -55,6 +56,8 @@ public interface FinanceiroDAO {
     @Query("DELETE FROM VALORES WHERE ID_VALOR=:id") void deleteValue(long id);
     @Query("DELETE FROM MESES_VALORES WHERE ID_VALOR=:id AND ID_MES IN (SELECT ID_MES FROM MESES WHERE ANO*12+MES-1>=:key)")
     void deleteLinksFrom(long id, int key);
+    @Query("UPDATE MESES_VALORES SET ID_VALOR=:replacement WHERE ID_VALOR=:id AND ID_MES IN (SELECT ID_MES FROM MESES WHERE ANO*12+MES-1>:key)")
+    void moveFollowingLinks(long id, long replacement, int key);
     @Query("SELECT ID_VALOR FROM VALORES WHERE ID_COMPRA_CARTAO=:id") List<Long> purchaseValues(long id);
     @Query("DELETE FROM COMPRAS_CARTOES WHERE ID_COMPRA_CARTAO=:id") void deletePurchase(long id);
     @Query("SELECT COUNT(*) FROM COMPRAS_CARTOES WHERE ID_CARTAO=:id") int cardPurchases(long id);

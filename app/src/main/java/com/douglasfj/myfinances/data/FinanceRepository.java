@@ -9,10 +9,13 @@ import java.io.IOException;
 public interface FinanceRepository {
     State load(YearMonth month);
     void saveEntry(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid);
+    void saveEntry(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid, boolean future);
     void deleteEntry(long id, YearMonth fromMonth);
+    void deleteEntry(long id, YearMonth month, boolean future);
     void setPaid(long linkId, boolean paid);
     void setInvoicePaid(long cardId, YearMonth month, boolean paid);
     LedgerPage ledger(boolean income, String search, YearMonth month, int offset);
+    LedgerPage purchaseLedger(String search, YearMonth month, Long card, int offset);
     java.util.List<com.douglasfj.myfinances.models.entities.CartoesEntity> cards();
     java.util.List<com.douglasfj.myfinances.data.FinanceModels.Purchase> invoicePurchases(long card,YearMonth month);
     void saveCard(Long id, String name);

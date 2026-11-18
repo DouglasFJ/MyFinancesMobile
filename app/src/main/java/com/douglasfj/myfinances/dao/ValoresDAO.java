@@ -38,13 +38,13 @@ public interface ValoresDAO {
             "(SELECT ID_VALOR FROM MESES_VALORES WHERE ID_MES == :idMes AND INDICADOR_DESPESA_PAGA == 0)")
     List<ValoresEntity> getDepesasNaoPagaMes(int idMes);
 
-    @Query("SELECT SUM(VALOR_REAIS) FROM VALORES WHERE " +
+    @Query("SELECT SUM(VALOR_REAIS)/100.0 FROM VALORES WHERE " +
             "INDICADOR_TIPO_VALOR == 1 AND " +
             "ID_VALOR IN " +
             "(SELECT ID_VALOR FROM MESES_VALORES WHERE ID_MES == :idMes)")
     Double getSaldoEntradaMes(int idMes);
 
-    @Query("SELECT SUM(VALOR_REAIS) FROM VALORES WHERE " +
+    @Query("SELECT SUM(VALOR_REAIS)/100.0 FROM VALORES WHERE " +
             "INDICADOR_TIPO_VALOR == 0 AND " +
             "ID_VALOR IN " +
             "(SELECT ID_VALOR FROM MESES_VALORES WHERE ID_MES == :idMes)")

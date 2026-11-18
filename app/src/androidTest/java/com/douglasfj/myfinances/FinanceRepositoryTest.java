@@ -26,6 +26,29 @@ public class FinanceRepositoryTest {
         repository=new RoomFinanceRepository(db);
     }
     @After public void close() { db.close(); }
+    @Test public void singleMonthEditAndDeletePreserveFuturePayments() {
+        repository.saveEntry(null,november,"Fixed",10000,false,false,true,false);
+        Entry january=repository.load(november.plusMonths(2)).entries.get(0);
+        repository.setPaid(january.linkId,true);
+        long id=repository.load(november.plusMonths(1)).entries.get(0).value.idValor;
+        repository.saveEntry(id,november.plusMonths(1),"Exception",-5000,false,false,true,true,false);
+        assertEquals(10000,Money.cents(repository.load(november).entries.get(0).value.valorReais));
+        assertEquals(-5000,Money.cents(repository.load(november.plusMonths(1)).entries.get(0).value.valorReais));
+        Entry future=repository.load(november.plusMonths(2)).entries.get(0);
+        assertEquals(10000,Money.cents(future.value.valorReais));
+        assertEquals(com.douglasfj.myfinances.constantes.IndicadorDespesaPaga.PAGA,future.paid);
+        repository.deleteEntry(future.value.idValor,november.plusMonths(2),false);
+        assertTrue(repository.load(november.plusMonths(2)).entries.isEmpty());
+        assertTrue(repository.load(november.plusMonths(2)).entries.isEmpty());
+        assertEquals(1,repository.load(november.plusMonths(3)).entries.size());
+    }
+    @Test public void negativeCardPurchasePreservesCentsAndReducesExpenses() {
+        repository.saveCard(null,"Credit");
+        long card=repository.load(november).cards.get(0).idCartao;
+        repository.savePurchase(null,card,"Refund",-10000,3,november);
+        assertEquals(-3334,repository.load(november).invoice(card).totalCents);
+        assertEquals(-3333,repository.load(november.plusMonths(1)).summary().expensesCents());
+    }
     @Test public void monthTotalsTaxPaymentAndDeletion() {
         repository.saveEntry(null,november,"Salário",500000,true,false,false,false);
         repository.saveEntry(null,november,"Mercado",10000,false,false,false,false);
@@ -49,15 +72,15 @@ public class FinanceRepositoryTest {
         State december=repository.load(november.plusMonths(1)); assertEquals(1,december.entries.size());
         repository.load(november.plusMonths(1)); assertEquals(1,repository.load(november.plusMonths(1)).entries.size());
         repository.saveEntry(december.entries.get(0).value.idValor,november.plusMonths(1),"Aluguel",110000,false,false,true,false);
-        assertEquals(1000,repository.load(november).entries.get(0).value.valorReais,0.001);
-        assertEquals(1100,repository.load(november.plusMonths(1)).entries.get(0).value.valorReais,0.001);
+        assertEquals(1000,repository.load(november).entries.get(0).value.valorReais.doubleValue(),0.001);
+        assertEquals(1100,repository.load(november.plusMonths(1)).entries.get(0).value.valorReais.doubleValue(),0.001);
         // Editing an earlier revision must not overlap the revised December amount.
         repository.saveEntry(repository.load(november).entries.get(0).value.idValor,november,"Aluguel",95000,false,false,true,false);
         assertEquals(1,repository.load(november.plusMonths(1)).entries.size());
         Entry january=repository.load(YearMonth.of(2027,1)).entries.get(0);
         repository.deleteEntry(january.value.idValor,YearMonth.of(2027,1));
         assertEquals(0,repository.load(YearMonth.of(2027,2)).entries.size());
-        assertEquals(1100,repository.load(november.plusMonths(1)).entries.get(0).value.valorReais,0.001);
+        assertEquals(1100,repository.load(november.plusMonths(1)).entries.get(0).value.valorReais.doubleValue(),0.001);
     }
     @Test public void purchasesSplitAcrossYearsAndCardsWithoutDoubleCounting() {
         repository.saveCard(null,"Principal"); repository.saveCard(null,"Viagens");
@@ -98,7 +121,7 @@ public class FinanceRepositoryTest {
         File backup=repository.backup(context.getCacheDir());
         try(SQLiteDatabase copy=SQLiteDatabase.openDatabase(backup.getPath(),null,SQLiteDatabase.OPEN_READONLY)) {
             try(android.database.Cursor cursor=copy.rawQuery("SELECT NOME_VALOR, VALOR_REAIS FROM VALORES",null)) {
-                assertTrue(cursor.moveToFirst()); assertEquals("Offline",cursor.getString(0)); assertEquals(123.45,cursor.getDouble(1),0.001);
+                assertTrue(cursor.moveToFirst()); assertEquals("Offline",cursor.getString(0)); assertEquals(12345,cursor.getLong(1));
             }
             try(android.database.Cursor integrity=copy.rawQuery("PRAGMA integrity_check",null)) {
                 assertTrue(integrity.moveToFirst()); assertEquals("ok",integrity.getString(0));
@@ -112,7 +135,7 @@ public class FinanceRepositoryTest {
         repository.setPaid(march.entries.get(0).linkId,true);
         State february=repository.load(YearMonth.of(2027,2));
         assertEquals(com.douglasfj.myfinances.constantes.IndicadorDespesaPaga.NAO_PAGA,february.entries.get(0).paid);
-        assertEquals(100,february.entries.get(0).value.valorReais,0.001);
+        assertEquals(100,february.entries.get(0).value.valorReais.doubleValue(),0.001);
     }
 
     @Test public void forecastUpdatesAfterPastEditsWithoutCreatingCarryoverRows() {

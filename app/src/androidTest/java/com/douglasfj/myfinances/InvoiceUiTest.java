@@ -53,7 +53,17 @@ public class InvoiceUiTest {
                 scenario.onActivity(activity -> org.junit.Assert.assertTrue(
                         new ViewModelProvider(activity).get(FinanceViewModel.class).state().getValue().invoice(idA).isPaid()));
                 onView(withText(containsString("Parcela 1 de 1"))).perform(scrollTo()).check(matches(isDisplayed()));
-                onView(withText(purchaseA)).check(matches(isDisplayed()));
+                onView(allOf(withText(purchaseA),not(isAssignableFrom(android.widget.EditText.class)))).check(matches(isDisplayed()));
+                onView(withContentDescription("Filtrar itens pelo nome")).perform(scrollTo(),replaceText("inexistente"),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                onView(withText("Nenhum item encontrado para os filtros informados.")).perform(scrollTo()).check(matches(isDisplayed()));
+                onView(withContentDescription("Filtrar itens pelo nome")).perform(scrollTo(),replaceText(purchaseA),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                onView(withContentDescription("Filtrar itens pelo valor da parcela")).perform(scrollTo(),replaceText("90,00"),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                onView(withText("Nenhum item encontrado para os filtros informados.")).perform(scrollTo()).check(matches(isDisplayed()));
+                onView(withContentDescription("Filtrar itens pelo valor da parcela")).perform(scrollTo(),replaceText("100,00"),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                onView(allOf(withText(purchaseA),not(isAssignableFrom(android.widget.EditText.class)))).perform(scrollTo()).check(matches(isDisplayed()));
+                onView(withId(R.id.invoice_total)).perform(scrollTo()).check(matches(withText(Money.format(10000))));
+                onView(withContentDescription("Filtrar itens pelo nome")).perform(scrollTo(),replaceText(""),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                onView(withContentDescription("Filtrar itens pelo valor da parcela")).perform(scrollTo(),replaceText(""),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
                 onView(withId(R.id.invoice_card_selector)).perform(scrollTo(),click());
                 onData(is(cardB)).perform(click());
                 onView(withId(R.id.invoice_total)).check(matches(withText(Money.format(9000))));

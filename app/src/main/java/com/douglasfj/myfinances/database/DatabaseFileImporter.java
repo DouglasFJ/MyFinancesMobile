@@ -18,7 +18,7 @@ public final class DatabaseFileImporter {
 
     public static MyFinancesDatabase open(Context context, String name) {
         return Room.databaseBuilder(context.getApplicationContext(), MyFinancesDatabase.class, name)
-                .addMigrations(MyFinancesDatabase.MIGRATION_1_2).build();
+                .addMigrations(MyFinancesDatabase.MIGRATION_1_2, MyFinancesDatabase.MIGRATION_2_3).build();
     }
 
     public static MyFinancesDatabase replace(Context context, String name,
@@ -99,7 +99,7 @@ public final class DatabaseFileImporter {
         try {
             try (SQLiteDatabase sqlite = SQLiteDatabase.openDatabase(file.getPath(), null, SQLiteDatabase.OPEN_READWRITE)) {
                 int version = sqlite.getVersion();
-                if (version < 1 || version > 2)
+                if (version < 1 || version > 3)
                     throw new IllegalArgumentException("A versão deste banco não é compatível com o MyFinances. Seus dados atuais não foram alterados.");
                 try (Cursor integrity = sqlite.rawQuery("PRAGMA integrity_check", null)) {
                     if (!integrity.moveToFirst() || !"ok".equals(integrity.getString(0)) || integrity.moveToNext()) throw invalid(null);
@@ -108,7 +108,7 @@ public final class DatabaseFileImporter {
                 sqlite.execSQL("DROP TABLE IF EXISTS room_master_table");
             }
             MyFinancesDatabase candidate = Room.databaseBuilder(context, MyFinancesDatabase.class, file.getAbsolutePath())
-                    .addMigrations(MyFinancesDatabase.MIGRATION_1_2)
+                    .addMigrations(MyFinancesDatabase.MIGRATION_1_2, MyFinancesDatabase.MIGRATION_2_3)
                     .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).build();
             try {
                 SupportSQLiteDatabase db = candidate.getOpenHelper().getWritableDatabase();
@@ -121,7 +121,7 @@ public final class DatabaseFileImporter {
                         "WHERE C.ID_CARTAO IS NULL OR P.NUMERO_PARCELAS NOT BETWEEN 1 AND 120");
                 rejectRows(db, "SELECT 1 FROM VALORES V LEFT JOIN COMPRAS_CARTOES P ON P.ID_COMPRA_CARTAO=V.ID_COMPRA_CARTAO " +
                         "WHERE (V.ID_COMPRA_CARTAO IS NOT NULL AND P.ID_COMPRA_CARTAO IS NULL) " +
-                        "OR V.VALOR_REAIS < 0 OR V.VALOR_REAIS > 999999999.99");
+                        "OR V.VALOR_REAIS < -99999999999 OR V.VALOR_REAIS > 99999999999");
                 // Also exercise enum/date converters before touching the current database.
                 candidate.valoresDAO().getAll();
             } finally { candidate.close(); }

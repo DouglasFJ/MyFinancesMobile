@@ -10,6 +10,8 @@ import com.douglasfj.myfinances.constantes.IndicadorValorFixo;
 import com.douglasfj.myfinances.constantes.TipoDespesa;
 
 import java.util.Date;
+import java.math.BigDecimal;
+import androidx.annotation.NonNull;
 
 @Entity(tableName = "VALORES")
 public class ValoresEntity {
@@ -18,8 +20,14 @@ public class ValoresEntity {
 
     @Ignore
     public ValoresEntity(String nomeValor, double valorReais, Date dataInsercaoValor, IndicadorValorFixo indicadorValorFixo, IndicadorTipoValor indicadorTipoValor, TipoDespesa tipoDespesa, Long idCompraCartao) {
+        this(nomeValor, BigDecimal.valueOf(valorReais).setScale(2, java.math.RoundingMode.HALF_UP), dataInsercaoValor,
+                indicadorValorFixo, indicadorTipoValor, tipoDespesa, idCompraCartao);
+    }
+
+    @Ignore
+    public ValoresEntity(String nomeValor, BigDecimal valorReais, Date dataInsercaoValor, IndicadorValorFixo indicadorValorFixo, IndicadorTipoValor indicadorTipoValor, TipoDespesa tipoDespesa, Long idCompraCartao) {
         this.nomeValor = nomeValor;
-        this.valorReais = valorReais;
+        this.valorReais = valorReais.setScale(2, java.math.RoundingMode.UNNECESSARY);
         this.dataInsercaoValor = dataInsercaoValor;
         this.indicadorValorFixo = indicadorValorFixo;
         this.indicadorTipoValor = indicadorTipoValor;
@@ -34,8 +42,10 @@ public class ValoresEntity {
     @ColumnInfo(name = "NOME_VALOR")
     public String nomeValor;
 
+    // Expressed in reais in Java; the Room converter stores exact integer cents.
     @ColumnInfo(name = "VALOR_REAIS")
-    public double valorReais;
+    @NonNull
+    public BigDecimal valorReais = BigDecimal.ZERO.setScale(2);
 
     @ColumnInfo(name = "DATA_INSERCAO_VALOR")
     public Date dataInsercaoValor;

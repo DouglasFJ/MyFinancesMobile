@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 public final class FinanceDialogs {
     public interface EntrySaver {
-        void save(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid);
+        void save(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid, boolean future);
     }
     public interface PurchaseSaver {
         void save(Long id, long card, String name, long cents, int count, YearMonth first);
@@ -55,7 +55,9 @@ public final class FinanceDialogs {
     }
     private static EditText field(LinearLayout form, String title, String value, int type) {
         label(form, title, 14); EditText field = new EditText(form.getContext()); field.setHint(title);
-        field.setContentDescription(title); field.setInputType(type); field.setSingleLine(true); field.setText(value);
+        field.setContentDescription(title); field.setInputType(type); field.setSingleLine(true);
+        if ((type & InputType.TYPE_NUMBER_FLAG_DECIMAL) != 0) MoneyInput.configure(field);
+        field.setText(value);
         form.addView(field, new LinearLayout.LayoutParams(-1,-2)); return field;
     }
     private static CheckBox check(LinearLayout form, String label, boolean checked) {
@@ -97,13 +99,22 @@ public final class FinanceDialogs {
         CheckBox tax = check(form,"É um imposto", value != null && value.imposto); tax.setVisibility(income ? android.view.View.GONE : android.view.View.VISIBLE);
         CheckBox fixed = check(form,"Repetir todo mês (valor fixo)", value != null && value.mesInicioFixo != null);
         CheckBox paid = check(form,"Já foi paga", existing != null && existing.paid == IndicadorDespesaPaga.PAGA); paid.setVisibility(income ? android.view.View.GONE : android.view.View.VISIBLE);
-        label(form,"Valores fixos repetem a partir deste mês. Alterações valem para este mês e os seguintes; meses anteriores são preservados.",13);
+        RadioGroup scope = new RadioGroup(context);
+        if (value != null && value.mesInicioFixo != null) {
+            label(form,"Aplicar alteração a",14);
+            RadioButton single = new RadioButton(context); single.setId(android.view.View.generateViewId()); single.setText("Apenas este mês"); scope.addView(single);
+            RadioButton following = new RadioButton(context); following.setId(android.view.View.generateViewId()); following.setText("Este mês e os seguintes"); scope.addView(following);
+            scope.check(single.getId()); form.addView(scope);
+            scope.setOnCheckedChangeListener((group, checked) -> fixed.setEnabled(checked == following.getId()));
+            fixed.setEnabled(false);
+        }
+        label(form,"Valores fixos repetem a partir deste mês. Meses anteriores são preservados.",13);
         dialog(f,existing == null ? (income ? "Nova receita" : "Nova despesa") : "Editar lançamento",form,() ->
-                save.save(value == null ? null : value.idValor,month[0],required(name),Money.parse(amount.getText().toString()),income,tax.isChecked(),fixed.isChecked(),paid.isChecked()));
+                save.save(value == null ? null : value.idValor,month[0],required(name),Money.parse(amount.getText().toString()),income,tax.isChecked(),fixed.isChecked(),paid.isChecked(),scope.getChildCount() == 0 || scope.getCheckedRadioButtonId() == scope.getChildAt(1).getId()));
     }
     public static void entryActions(Fragment f, Entry entry) {
         if(entry.invoiceCardId!=null) {
-            invoiceActions(f,entry.cardName,entry.value.valorReais,entry.paid==IndicadorDespesaPaga.PAGA,
+            invoiceActions(f,entry.cardName,entry.value.valorReais.doubleValue(),entry.paid==IndicadorDespesaPaga.PAGA,
                     () -> model(f).payInvoice(entry.invoiceCardId,entry.invoiceMonth,entry.paid!=IndicadorDespesaPaga.PAGA));
             return;
         }
@@ -120,10 +131,17 @@ public final class FinanceDialogs {
             int action = income ? which + 1 : which;
             if (action==0) vm.paid(entry.linkId, entry.paid != IndicadorDespesaPaga.PAGA);
             else if(action==1) entry(f,entry,income);
-            else confirm(f,"Excluir lançamento?",entry.value.mesInicioFixo != null ?
-                    "A repetição será encerrada a partir do mês selecionado. Os meses anteriores serão preservados." : "Este lançamento será removido do mês.",
-                    () -> vm.deleteEntry(entry.value.idValor,vm.month()));
+            else deleteEntry(f,entry.value.mesInicioFixo != null,vm.month(),future -> vm.deleteEntry(entry.value.idValor,vm.month(),future));
         }).show();
+    }
+    public static void deleteEntry(Fragment f, boolean fixed, YearMonth month, Consumer<Boolean> delete) {
+        if (fixed) {
+            new AlertDialog.Builder(f.requireContext()).setTitle("Excluir lançamento de " + FinanceUi.month(month) + "?")
+                    .setItems(new String[]{"Apenas este mês", "Este mês e os seguintes"}, (d, which) ->
+                            confirm(f,"Excluir lançamento?",which == 0 ? "Somente o lançamento deste mês será excluído." :
+                                    "A recorrência será encerrada neste mês. Meses anteriores serão preservados.", () -> delete.accept(which == 1)))
+                    .setNegativeButton("Cancelar",null).show();
+        } else confirm(f,"Excluir lançamento?","Este lançamento será removido do mês.",() -> delete.accept(true));
     }
     public static void invoiceActions(Fragment f,String card,double total,boolean paid,Runnable changePayment) {
         new AlertDialog.Builder(f.requireContext()).setTitle("Fatura " + card)

@@ -66,6 +66,10 @@ public class FinanceViewModel extends AndroidViewModel {
     public void saveEntry(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid) {
         run(() -> repository.saveEntry(id, month, name, cents, income, tax, fixed, paid), "Lançamento salvo.");
     }
+    public void saveEntry(Long id, YearMonth month, String name, long cents, boolean income, boolean tax, boolean fixed, boolean paid, boolean future) {
+        run(() -> repository.saveEntry(id, month, name, cents, income, tax, fixed, paid, future), "Lançamento salvo.");
+    }
+    public void deleteEntry(long id, YearMonth month, boolean future) { run(() -> repository.deleteEntry(id, month, future), "Lançamento removido."); }
     public void deleteEntry(long id, YearMonth month) { run(() -> repository.deleteEntry(id, month), "Lançamento removido."); }
     public void paid(long id, boolean paid) { run(() -> repository.setPaid(id, paid), "Pagamento atualizado."); }
     public void payInvoice(long card, YearMonth month, boolean paid) {
