@@ -233,7 +233,7 @@
                 android:id="@+id/fragment_home_card_falta_pagar"
                 style="@style/Widget.MyFinances.HomeBox"
                 android:layout_width="match_parent"
-                android:layout_height="170dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_home_card_saldos">
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -262,7 +262,7 @@
                     <GridView
                         android:id="@+id/fragment_home_lista_falta_pagar"
                         android:layout_width="match_parent"
-                        android:layout_height="116dp"
+                        android:layout_height="wrap_content"
                         android:numColumns="2"
                         android:verticalSpacing="10dp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -279,7 +279,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 style="@style/Widget.MyFinances.HomeBox"
                 app:layout_constraintTop_toBottomOf="@id/fragment_home_card_falta_pagar">
@@ -300,7 +300,7 @@
                     <ListView
                         android:id="@+id/fragment_home_lista_ultimas_despesas"
                         android:layout_width="match_parent"
-                        android:layout_height="170dp"
+                        android:layout_height="wrap_content"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/textView"
                         tools:listitem="@layout/layout_ultimas_despesas"/>

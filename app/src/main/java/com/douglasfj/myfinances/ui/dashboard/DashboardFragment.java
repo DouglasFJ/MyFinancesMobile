@@ -103,7 +103,7 @@ public class DashboardFragment extends FinancePageFragment {
             grid.setColumnCount(2);
             grid.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
             layValor.addView(grid);
-            for(int position=0;position<Math.min(5,entries.size());position++) {
+            for(int position=0;position<entries.size();position++) {
                 Entry e=entries.get(position);
                 View item=adapter.getView(position,null,grid);
                 GridLayout.LayoutParams bounds=new GridLayout.LayoutParams(
@@ -119,7 +119,6 @@ public class DashboardFragment extends FinancePageFragment {
                 item.setOnClickListener(v -> FinanceDialogs.entryActions(this,e));
             }
             if(entries.isEmpty()) FinanceUi.text(layValor,"Nenhum lançamento nesta categoria.",14);
-            if(entries.size()>5) FinanceUi.text(layValor,"Use os botões acima para visualizar todos os lançamentos.",14);
         }
         FinanceUi.text(content,"Histórico mensal",23);
         YearMonth firstVisibleMonth=state.month.minusMonths(2);
