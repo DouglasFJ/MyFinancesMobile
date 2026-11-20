@@ -25,6 +25,24 @@ public class LedgerRepositoryTest {
     }
     @After public void close() { db.close(); }
 
+    @Test public void fixedFilterCombinesWithMonthSearchAndPaginationWithoutChangingStoredValues() {
+        for(boolean income:new boolean[]{true,false}) {
+            for(int i=0;i<35;i++) repository.saveEntry(null,november,"Fixo teste " + i,1000,income,false,true,false);
+            repository.saveEntry(null,november,"Variável teste",2000,income,false,false,false);
+            LedgerPage first=repository.ledger(income,"Fixo teste",november,true,0);
+            LedgerPage second=repository.ledger(income,"Fixo teste",november,true,30);
+            assertEquals(30,first.rows.size()); assertTrue(first.hasMore);
+            assertEquals(5,second.rows.size()); assertFalse(second.hasMore);
+            assertTrue(first.rows.stream().allMatch(row -> row.fixed==1));
+            LedgerPage variable=repository.ledger(income,"teste",november,false,0);
+            assertEquals(1,variable.rows.size()); assertEquals(0,variable.rows.get(0).fixed);
+            assertTrue(repository.ledger(income,"Variável",november,true,0).rows.isEmpty());
+            assertTrue(repository.ledger(income,"Variável",november.plusMonths(1),false,0).rows.isEmpty());
+            repository.load(november.plusMonths(1));
+            assertFalse(repository.ledger(income,"Fixo teste",november.plusMonths(1),true,0).rows.isEmpty());
+        }
+    }
+
     @Test public void invoicesReplaceInstallmentRowsAndBulkPaymentIsScopedToCardAndMonth() {
         repository.saveCard(null,"A"); repository.saveCard(null,"B");
         State initial=repository.load(november); long a=initial.cards.get(0).idCartao,b=initial.cards.get(1).idCartao;

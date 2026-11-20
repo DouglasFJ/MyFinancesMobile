@@ -15,6 +15,7 @@ public interface FinanceRepository {
     void setPaid(long linkId, boolean paid);
     void setInvoicePaid(long cardId, YearMonth month, boolean paid);
     LedgerPage ledger(boolean income, String search, YearMonth month, int offset);
+    LedgerPage ledger(boolean income, String search, YearMonth month, Boolean fixed, int offset);
     LedgerPage purchaseLedger(String search, YearMonth month, Long card, int offset);
     java.util.List<com.douglasfj.myfinances.models.entities.CartoesEntity> cards();
     java.util.List<com.douglasfj.myfinances.data.FinanceModels.Purchase> invoicePurchases(long card,YearMonth month);

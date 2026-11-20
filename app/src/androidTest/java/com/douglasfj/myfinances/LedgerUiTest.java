@@ -52,6 +52,24 @@ public class LedgerUiTest {
             });
         });
     }
+    private static void selectMonth(YearMonth month) {
+        onView(withId(R.id.ledger_month)).perform(click());
+        setPicker("Mês",month.getMonthValue());
+        setPicker("Ano",month.getYear());
+        onView(withText("Selecionar")).inRoot(isDialog()).perform(click());
+    }
+    private static void setPicker(String description,int value) {
+        onView(withContentDescription(description)).perform(new ViewAction() {
+            @Override public org.hamcrest.Matcher<android.view.View> getConstraints() {
+                return isAssignableFrom(android.widget.NumberPicker.class);
+            }
+            @Override public String getDescription() { return "Selecionar " + description; }
+            @Override public void perform(UiController controller,android.view.View view) {
+                ((android.widget.NumberPicker)view).setValue(value);
+                controller.loopMainThreadUntilIdle();
+            }
+        });
+    }
     @Test public void fullScreenSearchPaginationFiltersEditAndDelete() {
         Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
         MyFinancesDatabase db=MyFinancesDatabase.getDatabase(context);
@@ -70,17 +88,17 @@ public class LedgerUiTest {
         try(ActivityScenario<LedgerActivity> scenario=ActivityScenario.launch(LedgerActivity.intent(context,true))) {
             onView(withId(R.id.ledger_search)).check(matches(isDisplayed())); attach(scenario,idle); IdlingRegistry.getInstance().register(idle);
             onView(withId(R.id.nav_view)).check(doesNotExist());
-            onView(withId(R.id.ledger_month)).check(matches(withSpinnerText("Todos os meses")));
+            onView(withId(R.id.ledger_month)).check(matches(withText("Todos os meses")));
             onView(withId(R.id.ledger_search)).perform(replaceText(prefix),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
             onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 30 lançamento(s)")));
             scenario.onActivity(activity -> ((RecyclerView)activity.findViewById(R.id.ledger_list)).scrollToPosition(30));
             onView(withId(R.id.ledger_more)).perform(click());
             onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 35 lançamento(s)")));
-            onView(withId(R.id.ledger_month)).perform(click()); onData(is(com.douglasfj.myfinances.ui.FinanceUi.month(month))).perform(click());
+            selectMonth(month);
             onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 30 lançamento(s)")));
             scenario.recreate(); attach(scenario,idle);
             onView(withId(R.id.ledger_search)).check(matches(withText(prefix)));
-            onView(withId(R.id.ledger_month)).check(matches(withSpinnerText(com.douglasfj.myfinances.ui.FinanceUi.month(month))));
+            onView(withId(R.id.ledger_month)).check(matches(withText(com.douglasfj.myfinances.ui.FinanceUi.month(month))));
             scenario.onActivity(activity -> ((RecyclerView)activity.findViewById(R.id.ledger_list)).scrollToPosition(0));
             onView(withContentDescription("Editar "+prefix+" 34")).perform(click());
             onView(withContentDescription("Nome do lançamento")).perform(replaceText(prefix+" editada"));
@@ -93,6 +111,33 @@ public class LedgerUiTest {
             for(ValoresEntity value:db.valoresDAO().getAll()) if(value.nomeValor!=null && value.nomeValor.startsWith(prefix)) {
                 db.financeiroDAO().deleteLinks(value.idValor); db.financeiroDAO().deleteValue(value.idValor);
             }
+        }
+    }
+    @Test public void monthPickerAndFixedFilterPersistForIncomeAndExpenses() {
+        Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        for(boolean income:new boolean[]{true,false}) {
+            Idle idle=new Idle();
+            try(ActivityScenario<LedgerActivity> scenario=ActivityScenario.launch(LedgerActivity.intent(context,income))) {
+                attach(scenario,idle); IdlingRegistry.getInstance().register(idle);
+                onView(withId(R.id.ledger_month)).check(matches(withText("Todos os meses")));
+                selectMonth(YearMonth.of(2031,7));
+                onView(withId(R.id.ledger_fixed)).perform(click());
+                onData(is("Somente fixos")).perform(click());
+                scenario.recreate(); attach(scenario,idle);
+                onView(withId(R.id.ledger_month)).check(matches(withText(com.douglasfj.myfinances.ui.FinanceUi.month(YearMonth.of(2031,7)))));
+                onView(withId(R.id.ledger_fixed)).check(matches(withSpinnerText("Somente fixos")));
+                scenario.onActivity(activity -> {
+                    LedgerViewModel model=new ViewModelProvider(activity).get(LedgerViewModel.class);
+                    assertEquals(Boolean.TRUE,model.fixed());
+                    assertEquals(YearMonth.of(2031,7),model.month());
+                });
+                onView(withId(R.id.ledger_month)).perform(click());
+                onView(withText("Todos os meses")).inRoot(isDialog()).perform(click());
+                onView(withId(R.id.ledger_month)).check(matches(withText("Todos os meses")));
+                onView(withId(R.id.ledger_fixed)).perform(click());
+                onData(is("Somente variáveis")).perform(click());
+                scenario.onActivity(activity -> assertEquals(Boolean.FALSE,new ViewModelProvider(activity).get(LedgerViewModel.class).fixed()));
+            } finally { IdlingRegistry.getInstance().unregister(idle); }
         }
     }
     @Test public void purchasePageFiltersInvoicesAndEditsAndDeletesWholePurchase() {
@@ -113,12 +158,11 @@ public class LedgerUiTest {
             onView(withId(R.id.ledger_card)).check(matches(withSpinnerText(cardA)));
             onView(withId(R.id.ledger_search)).perform(replaceText(prefix),androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
             onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 2 compra(s)")));
-            onView(withId(R.id.ledger_month)).perform(click());
-            onData(is(com.douglasfj.myfinances.ui.FinanceUi.month(january))).perform(click());
+            selectMonth(january);
             onView(withId(R.id.ledger_status)).check(matches(withText("Mostrando 1 compra(s)")));
             onView(withText("Valor total: " + Money.format(10000))).check(matches(isDisplayed()));
             scenario.recreate(); attach(scenario,idle);
-            onView(withId(R.id.ledger_month)).check(matches(withSpinnerText(com.douglasfj.myfinances.ui.FinanceUi.month(january))));
+            onView(withId(R.id.ledger_month)).check(matches(withText(com.douglasfj.myfinances.ui.FinanceUi.month(january))));
             onView(withId(R.id.ledger_card)).check(matches(withSpinnerText(cardA)));
             onView(withId(R.id.ledger_search)).check(matches(withText(prefix)));
             scenario.onActivity(activity -> assertEquals(context.getColor(R.color.amber_700),

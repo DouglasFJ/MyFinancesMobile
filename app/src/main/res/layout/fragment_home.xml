@@ -7,6 +7,7 @@
     tools:context=".ui.home.HomeFragment">
 
     <ScrollView
+        android:id="@+id/fragment_home_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/neutral_100"
@@ -32,22 +33,26 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
-                    android:id="@+id/fragment_home_mes_selection"
-                    style="?attr/buttonStyle"
-                    android:textColor="@color/neutral_50"
+                <TextView
+                    android:id="@+id/fragment_home_app_name"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:drawableEnd="@drawable/arrow"
-                    android:drawableTint="@color/neutral_50"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="5dp"
-                    android:text="@string/default_month_text"
-                    android:textSize="15sp"
+                    android:layout_height="wrap_content"
+                    android:text="MyFinances"
+                    android:textColor="@color/neutral_950"
+                    android:textSize="26sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/fragment_home_month_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/fragment_home_constraint_l_icon" />
 
             <LinearLayout
                 android:id="@+id/fragment_home_actions"
@@ -55,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="12dp"
-                app:layout_constraintTop_toBottomOf="@id/fragment_home_constraint_l_icon">
+                app:layout_constraintTop_toBottomOf="@id/fragment_home_month_selector">
                 <Button android:id="@+id/fragment_home_add_income"
                     android:textColor="@color/neutral_50"
                     android:layout_width="0dp" android:layout_weight="1"
@@ -233,7 +238,7 @@
                 android:id="@+id/fragment_home_card_falta_pagar"
                 style="@style/Widget.MyFinances.HomeBox"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_marginTop="30dp"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_home_card_saldos">
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -259,14 +264,15 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <GridView
+                    <com.douglasfj.myfinances.ui.shared.ScrollAwareGridView
                         android:id="@+id/fragment_home_lista_falta_pagar"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:numColumns="2"
                         android:verticalSpacing="10dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/fragment_home_title_falta_pagar"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         tools:listitem="@layout/layout_despesa" />
                     <TextView android:id="@+id/fragment_home_pending_empty"
                         android:textColor="@color/neutral_800"
@@ -279,7 +285,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_marginTop="30dp"
                 style="@style/Widget.MyFinances.HomeBox"
                 app:layout_constraintTop_toBottomOf="@id/fragment_home_card_falta_pagar">
@@ -297,12 +303,13 @@
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ListView
+                    <com.douglasfj.myfinances.ui.shared.ScrollAwareListView
                         android:id="@+id/fragment_home_lista_ultimas_despesas"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/textView"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         tools:listitem="@layout/layout_ultimas_despesas"/>
                     <TextView android:id="@+id/fragment_home_recent_empty"
                         android:textColor="@color/neutral_800"

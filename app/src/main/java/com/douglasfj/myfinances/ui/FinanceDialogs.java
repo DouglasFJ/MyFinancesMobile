@@ -30,16 +30,24 @@ public final class FinanceDialogs {
         pickMonth(fragment.requireContext(),initial,selected);
     }
     private static void pickMonth(Context context, YearMonth initial, Consumer<YearMonth> selected) {
+        pickMonth(context,initial,selected,false);
+    }
+    public static void pickMonthFilter(Fragment fragment, YearMonth initial, Consumer<YearMonth> selected) {
+        pickMonth(fragment.requireContext(),initial==null ? YearMonth.now() : initial,selected,true);
+    }
+    private static void pickMonth(Context context, YearMonth initial, Consumer<YearMonth> selected, boolean allMonths) {
         LinearLayout content = form(context);
         NumberPicker month = new NumberPicker(context); month.setMinValue(1); month.setMaxValue(12);
         month.setDisplayedValues(new String[]{"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"});
         month.setValue(initial.getMonthValue()); month.setContentDescription("Mês"); content.addView(month);
         NumberPicker year = new NumberPicker(context); year.setMinValue(1900); year.setMaxValue(2200);
         year.setValue(initial.getYear()); year.setContentDescription("Ano"); content.addView(year);
-        new AlertDialog.Builder(context).setTitle("Selecionar mês").setView(content)
+        AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle("Selecionar mês").setView(content)
                 .setNegativeButton("Cancelar", null).setPositiveButton("Selecionar", (d,w) -> {
                     content.clearFocus(); selected.accept(YearMonth.of(year.getValue(), month.getValue()));
-                }).show();
+                });
+        if(allMonths) builder.setNeutralButton("Todos os meses",(d,w) -> selected.accept(null));
+        builder.show();
     }
     private static LinearLayout form(Fragment f) {
         return form(f.requireContext());

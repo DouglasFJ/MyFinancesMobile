@@ -132,8 +132,11 @@ public final class RoomFinanceRepository implements FinanceRepository {
         db.runInTransaction(() -> dao.setInvoicePaid(cardId,month.getMonthValue(),month.getYear(),paid ? 1 : 0));
     }
     @Override public LedgerPage ledger(boolean income, String search, YearMonth month, int offset) {
+        return ledger(income,search,month,null,offset);
+    }
+    @Override public LedgerPage ledger(boolean income, String search, YearMonth month, Boolean fixed, int offset) {
         return db.runInTransaction(() -> {
-            List<LedgerRow> rows=dao.ledger(LedgerQuery.page(income,search,month,offset));
+            List<LedgerRow> rows=dao.ledger(LedgerQuery.page(income,search,month,fixed,offset));
             boolean more=rows.size()>LedgerPage.SIZE;
             if(more) rows=new java.util.ArrayList<>(rows.subList(0,LedgerPage.SIZE));
             return new LedgerPage(rows,dao.months(),more);

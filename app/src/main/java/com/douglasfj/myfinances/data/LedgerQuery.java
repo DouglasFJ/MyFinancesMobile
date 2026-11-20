@@ -8,6 +8,9 @@ import java.util.*;
 public final class LedgerQuery {
     private LedgerQuery() {}
     public static SupportSQLiteQuery page(boolean income, String search, YearMonth month, int offset) {
+        return page(income,search,month,null,offset);
+    }
+    public static SupportSQLiteQuery page(boolean income, String search, YearMonth month, Boolean fixed, int offset) {
         String normal = "SELECT MV.ID_MES_VALOR AS rowId,V.ID_VALOR AS valueId,NULL AS cardId," +
                 "M.MES AS month,M.ANO AS year,V.NOME_VALOR AS name,V.VALOR_REAIS/100.0 AS amount," +
                 "COALESCE(MV.INDICADOR_DESPESA_PAGA,0) AS paid,COALESCE(V.INDICADOR_VALOR_FIXO,0) AS fixed,V.IMPOSTO AS tax " +
@@ -23,6 +26,7 @@ public final class LedgerQuery {
                 "INSTR(" + lowerName("COALESCE(name,'')") + ",?)>0";
         List<Object> args = new ArrayList<>(); args.add(search == null ? "" : search.trim().toLowerCase(Locale.ROOT));
         if (month != null) { sql += " AND year=? AND month=?"; args.add(month.getYear()); args.add(month.getMonthValue()); }
+        if (fixed != null) { sql += " AND fixed=?"; args.add(fixed ? 1 : 0); }
         sql += " ORDER BY year DESC,month DESC,rowId DESC,COALESCE(cardId,0) DESC LIMIT ? OFFSET ?";
         args.add(LedgerPage.SIZE + 1); args.add(Math.max(0,offset));
         return new SimpleSQLiteQuery(sql,args.toArray());

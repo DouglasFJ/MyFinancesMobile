@@ -6,6 +6,7 @@
     <item name="ledger_row_name" type="id"/>
     <item name="ledger_card" type="id"/>
     <item name="ledger_month" type="id"/>
+    <item name="ledger_fixed" type="id"/>
     <item name="ledger_status" type="id"/>
     <item name="ledger_list" type="id"/>
     <item name="ledger_more" type="id"/>

@@ -58,6 +58,8 @@ public class LedgerViewModel extends AndroidViewModel {
     public LiveData<Event<PurchaseSelection>> purchases() { return purchases; }
     public String search() { String value=saved.get("search"); return value==null ? "" : value; }
     public YearMonth month() { String value=saved.get("month"); return value==null ? null : YearMonth.parse(value); }
+    public Boolean fixed() { return saved.get("fixed"); }
+    public void fixed(Boolean fixed) { if(!Objects.equals(fixed,fixed())) { saved.set("fixed",fixed); reload(); } }
     public void search(String search) { if(!search.equals(search())) { saved.set("search",search); reload(); } }
     public void month(YearMonth month) { saved.set("month",month==null ? null : month.toString()); reload(); }
     private FinanceRepository repository() { return new RoomFinanceRepository(MyFinancesDatabase.getDatabase(getApplication())); }
@@ -69,11 +71,11 @@ public class LedgerViewModel extends AndroidViewModel {
     }
     private void load(boolean append) {
         int ticket=++generation,offset=append ? rows.size() : 0;
-        String query=search(); YearMonth month=month(); Long card=card();
+        String query=search(); YearMonth month=month(); Long card=card(); Boolean fixed=fixed();
         busy.setValue(true);
         worker.execute(() -> {
             try {
-                LedgerPage next=purchaseMode ? repository().purchaseLedger(query,month,card,offset) : repository().ledger(income,query,month,offset);
+                LedgerPage next=purchaseMode ? repository().purchaseLedger(query,month,card,offset) : repository().ledger(income,query,month,fixed,offset);
                 main.post(() -> {
                     if(cleared || ticket!=generation) return;
                     if(!append) rows.clear();

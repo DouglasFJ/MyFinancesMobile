@@ -22,14 +22,14 @@ import java.util.*;
 public class LedgerFragment extends Fragment implements LedgerAdapter.Actions {
     private LedgerViewModel model;
     private LedgerAdapter adapter;
-    private Spinner selector, cardSelector;
+    private Button selector;
+    private Spinner cardSelector, fixedSelector;
     private List<com.douglasfj.myfinances.models.entities.CartoesEntity> cards=Collections.emptyList();
     private TextView status;
     private TextInputEditText search;
     private boolean income, purchases;
     private final Handler handler=new Handler(Looper.getMainLooper());
     private Runnable pendingSearch;
-    private List<YearMonth> months=Collections.emptyList();
 
     @Override public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup parent,Bundle saved) {
         purchases=requireActivity().getIntent().getBooleanExtra("purchases",false);
@@ -58,8 +58,30 @@ public class LedgerFragment extends Fragment implements LedgerAdapter.Actions {
         search.setInputType(android.text.InputType.TYPE_CLASS_TEXT); search.setTextColor(requireContext().getColor(R.color.neutral_950));
         search.setContentDescription("Buscar pelo nome"); search.setText(model.search()); input.addView(search,new LinearLayout.LayoutParams(-1,-2)); filters.addView(input);
         FinanceUi.text(filters,purchases ? "Mês da fatura / ano" : "Mês / ano",14).setTextColor(color);
-        selector=new Spinner(requireContext()); selector.setId(R.id.ledger_month); selector.setContentDescription("Filtrar mês e ano");
-        filters.addView(selector,new LinearLayout.LayoutParams(-1,FinanceUi.dp(requireContext(),48)));
+        com.google.android.material.button.MaterialButton monthButton=FinanceUi.button(filters,
+                model.month()==null ? "Todos os meses" : FinanceUi.month(model.month()),
+                v -> FinanceDialogs.pickMonthFilter(this,model.month(),model::month));
+        selector=monthButton; selector.setId(R.id.ledger_month); selector.setContentDescription("Filtrar mês e ano");
+        monthButton.setIconResource(R.drawable.arrow);
+        monthButton.setIconGravity(com.google.android.material.button.MaterialButton.ICON_GRAVITY_END);
+        monthButton.setIconTint(ColorStateList.valueOf(requireContext().getColor(R.color.neutral_50)));
+        monthButton.setBackgroundTintList(ColorStateList.valueOf(color));
+        if(!purchases) {
+            FinanceUi.text(filters,"Tipo de lançamento",14).setTextColor(color);
+            fixedSelector=new Spinner(requireContext()); fixedSelector.setId(R.id.ledger_fixed);
+            fixedSelector.setContentDescription("Filtrar lançamentos fixos ou variáveis");
+            fixedSelector.setAdapter(FinanceUi.selectorAdapter(requireContext(),
+                    new String[]{"Todos os lançamentos","Somente fixos","Somente variáveis"}));
+            fixedSelector.setSelection(model.fixed()==null ? 0 : model.fixed() ? 1 : 2);
+            fixedSelector.setBackgroundTintList(ColorStateList.valueOf(color));
+            filters.addView(fixedSelector,new LinearLayout.LayoutParams(-1,FinanceUi.dp(requireContext(),48)));
+            fixedSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override public void onItemSelected(AdapterView<?> parent,View view,int position,long id) {
+                    model.fixed(position==0 ? null : position==1);
+                }
+                @Override public void onNothingSelected(AdapterView<?> parent) {}
+            });
+        }
         if(purchases) {
             FinanceUi.text(filters,"Cartão",14).setTextColor(color);
             cardSelector=new Spinner(requireContext()); cardSelector.setId(R.id.ledger_card);
@@ -75,7 +97,7 @@ public class LedgerFragment extends Fragment implements LedgerAdapter.Actions {
     }
     @Override public void onViewCreated(@NonNull View view,@Nullable Bundle saved) {
         model.page().observe(getViewLifecycleOwner(),page -> {
-            adapter.submit(page); renderMonths(page);
+            adapter.submit(page); selector.setText(model.month()==null ? "Todos os meses" : FinanceUi.month(model.month()));
             if(purchases) renderCards(page);
             status.setText(page.rows.isEmpty() ? (purchases ? "Nenhuma compra encontrada." : income ? "Nenhuma receita encontrada." : "Nenhuma despesa encontrada.") : "Mostrando " + page.rows.size() + (purchases ? " compra(s)" : " lançamento(s)"));
         });
@@ -90,25 +112,6 @@ public class LedgerFragment extends Fragment implements LedgerAdapter.Actions {
             }
             @Override public void afterTextChanged(Editable editable) {}
         }); model.configure(income,purchases,requireActivity().getIntent().hasExtra("card") ? requireActivity().getIntent().getLongExtra("card",0) : null);
-    }
-    private void renderMonths(LedgerPage page) {
-        List<YearMonth> next=new ArrayList<>(); next.add(null);
-        for(int i=page.months.size()-1;i>=0;i--) next.add(YearMonth.of(page.months.get(i).ano,page.months.get(i).mes));
-        if(next.equals(months)) return; months=next;
-        List<String> labels=new ArrayList<>(); for(YearMonth month:months) labels.add(month==null ? "Todos os meses" : FinanceUi.month(month));
-        ArrayAdapter<String> options=new ArrayAdapter<String>(requireContext(),android.R.layout.simple_spinner_dropdown_item,labels) {
-            @Override public View getView(int position,View convert,ViewGroup parent) {
-                TextView text=(TextView)super.getView(position,convert,parent);
-                text.setTextColor(requireContext().getColor(purchases ? R.color.amber_800 : income ? R.color.emerald_800 : R.color.red_800)); return text;
-            }
-        };
-        selector.setAdapter(options); selector.setSelection(Math.max(0,months.indexOf(model.month())));
-        selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent,View view,int position,long id) {
-                YearMonth selected=months.get(position); if(!Objects.equals(selected,model.month())) model.month(selected);
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
     }
     private void renderCards(LedgerPage page) {
         cards=page.cards;
@@ -152,6 +155,6 @@ public class LedgerFragment extends Fragment implements LedgerAdapter.Actions {
     }
     @Override public void onDestroyView() {
         if(pendingSearch!=null) handler.removeCallbacks(pendingSearch);
-        super.onDestroyView(); adapter=null; selector=null; cardSelector=null; cards=Collections.emptyList(); search=null; status=null; months=Collections.emptyList();
+        super.onDestroyView(); adapter=null; selector=null; cardSelector=null; fixedSelector=null; cards=Collections.emptyList(); search=null; status=null;
     }
 }

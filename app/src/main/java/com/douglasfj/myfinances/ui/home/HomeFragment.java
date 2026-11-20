@@ -32,7 +32,6 @@ public class HomeFragment extends Fragment {
         recentAdapter=new UltimasDespesasViewAdapter(requireContext(),new ArrayList<>());
         binding.fragmentHomeListaFaltaPagar.setAdapter(pendingAdapter);
         binding.fragmentHomeListaUltimasDespesas.setAdapter(recentAdapter);
-        binding.fragmentHomeMesSelection.setOnClickListener(v -> FinanceDialogs.pickMonth(this,model.month(),model::selectMonth));
         binding.fragmentHomeAddIncome.setOnClickListener(v -> FinanceDialogs.entry(this,null,true));
         binding.fragmentHomeAddExpense.setOnClickListener(v -> FinanceDialogs.entry(this,null,false));
         binding.fragmentHomeListaFaltaPagar.setOnItemClickListener((p,v,pos,id) -> FinanceDialogs.entryActions(this,pending.get(pos)));
@@ -43,7 +42,8 @@ public class HomeFragment extends Fragment {
         model.state().observe(getViewLifecycleOwner(),this::render);
     }
     private void render(State state) {
-        binding.fragmentHomeMesSelection.setText(FinanceUi.month(state.month));
+        binding.fragmentHomeMonthSelector.removeAllViews();
+        MonthSelector.addTo(binding.fragmentHomeMonthSelector,this,state.month,model::selectMonth);
         pending.clear(); recent.clear();
         List<ValoresEntity> pendingValues=new ArrayList<>(),recentValues=new ArrayList<>();
         for(Entry e:state.expenses()) {
